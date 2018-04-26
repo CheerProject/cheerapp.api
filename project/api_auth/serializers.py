@@ -20,9 +20,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(min_length=8, write_only=True, required=True)
 
-    wallet = serializers.SlugRelatedField(
-        many=False, read_only=True, slug_field='address')
-
     def create(self, validated_data):
 
         user = User.objects.create_user(
@@ -35,21 +32,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'wallet', 'password','is_active')
+        fields = ('id', 'username', 'email', 'password','is_active')
         required_fields = ('username','password','email')
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super(MyTokenObtainPairSerializer, cls).get_token(user)
-        print(token)
-        # Add custom claims
-        
-        print(token)
-        
-        return token
-
+  
     def validate(self,attrs):
         data = super(MyTokenObtainPairSerializer, self).validate(attrs)
 
