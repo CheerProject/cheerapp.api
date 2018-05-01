@@ -1,30 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
 
 # Create your models here.
-
-SEX_CHOICES = (
-('F', 'Female'),
-('M', 'Male'),
-)
-
-class User(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    username = models.CharField(max_length=150, unique=True)
-    password = models.CharField(max_length=150)
-
-    first_name = models.CharField(max_length=150)
-    last_name=models.CharField(max_length=150)
-    email = models.EmailField()
-    phone = models.IntegerField()
-    sex = models.CharField(max_length=1, choices=SEX_CHOICES)
-
-    created_date = models.DateTimeField()
-    modified_date = models.DateTimeField()
-
-    def __str__(self):
-        return self.username
 
 class ParentScoreCategory(models.Model):
     name = models.CharField(max_length=150, unique=True)
@@ -119,7 +95,7 @@ class Registration(models.Model):
 
 class UserScoreCategoryChampionship(models.Model):
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     scorecategory = models.ForeignKey(ScoreCategory, on_delete=models.CASCADE)
     championship = models.ForeignKey(Championship, on_delete=models.CASCADE)
 
@@ -139,7 +115,7 @@ class ScoreSheet(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     scorecategory = models.ForeignKey(ScoreCategory, on_delete=models.CASCADE)
     scoremetric = models.ForeignKey(ScoreMetric, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
 
     def __str__(self):
         return 'championship id: %i round id: %i team id: %i scorecategory id: %i scoremetric id: %i user id: %i' % (self.championship, self.round, self.team, self.scorecategory, self.scoremetric, self.user)
