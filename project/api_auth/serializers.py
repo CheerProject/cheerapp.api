@@ -2,10 +2,9 @@ from django.contrib.auth.models import User
 from rest_framework.validators import UniqueValidator
 from rest_framework import serializers
 
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
 import environ
 from datetime import datetime, timedelta
+
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -18,7 +17,12 @@ class UserSerializer(serializers.ModelSerializer):
                                          queryset=User.objects.all())]
                                      )
 
+<<<<<<< HEAD
     password = serializers.CharField(min_length=8, write_only=True, required=True)
+=======
+    password = serializers.CharField(
+        min_length=8, write_only=True, required=True)
+>>>>>>> origin/develop
 
     def create(self, validated_data):
 
@@ -32,6 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
+<<<<<<< HEAD
         fields = ('id', 'username', 'email', 'password','is_active')
         required_fields = ('username','password','email')
 
@@ -51,3 +56,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         return data
 
+=======
+        fields = ('id', 'username', 'email', 'password', 'is_active')
+        required_fields = ('username', 'password', 'email')
+>>>>>>> origin/develop
