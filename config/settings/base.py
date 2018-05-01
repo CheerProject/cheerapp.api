@@ -53,6 +53,7 @@ THIRD_PARTY_APPS = (
 )
 
 LOCAL_APPS = (
+    'project.judge',
     'project.api_auth',
 )
 
@@ -95,8 +96,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': str(ROOT_DIR.path('db.sqlite3')),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'myproject',
+        'USER': 'myprojectuser',
+        'PASSWORD': 'myprojectuser',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
