@@ -17,12 +17,9 @@ class UserSerializer(serializers.ModelSerializer):
                                          queryset=User.objects.all())]
                                      )
 
-<<<<<<< HEAD
-    password = serializers.CharField(min_length=8, write_only=True, required=True)
-=======
     password = serializers.CharField(
         min_length=8, write_only=True, required=True)
->>>>>>> origin/develop
+
 
     def create(self, validated_data):
 
@@ -36,27 +33,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-<<<<<<< HEAD
-        fields = ('id', 'username', 'email', 'password','is_active')
-        required_fields = ('username','password','email')
 
-
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-  
-    def validate(self,attrs):
-        data = super(MyTokenObtainPairSerializer, self).validate(attrs)
-
-        env = environ.Env()
-        expired_token = env('ACCESS_TOKEN_LIFETIME', default=5)
-        nextTime = datetime.now() + timedelta(minutes = expired_token)
-        time_stamp = str(int(nextTime.timestamp()))
-        print('time stamp ' + time_stamp)
-        
-        data['expires_on'] = time_stamp
-
-        return data
-
-=======
         fields = ('id', 'username', 'email', 'password', 'is_active')
         required_fields = ('username', 'password', 'email')
->>>>>>> origin/develop
