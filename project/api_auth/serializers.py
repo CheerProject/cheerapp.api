@@ -2,11 +2,17 @@ from django.contrib.auth.models import User
 from rest_framework.validators import UniqueValidator
 from rest_framework import serializers
 
+from project.judge.serializers import UserScoreCategoryChampionshipSerializer
+from project.judge.serializers import ScoreSheetSerializer
+
+
 import environ
 from datetime import datetime, timedelta
 
 
 class UserSerializer(serializers.ModelSerializer):
+    user_score_category_championships = UserScoreCategoryChampionshipSerializer(many=True)
+    score_sheets = ScoreSheetSerializer(many=True)
 
     email = serializers.EmailField(
         required=True,
@@ -34,5 +40,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
 
-        fields = ('id', 'username', 'email', 'password', 'is_active')
+        fields = ('id', 'username', 'email', 'password', 'is_active', 'user_score_category_championships', 'score_sheets')
         required_fields = ('username', 'password', 'email')
+        read_only_fields = ('user_score_category_championships', 'score_sheets')
