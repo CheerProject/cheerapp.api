@@ -4,123 +4,114 @@ from django.utils import timezone
 
 # Create your models here.
 
-class ParentScoreCategory(models.Model):
-    name = models.CharField(max_length=150, unique=True)
-    description = models.CharField(max_length=250)
+class BaseModel(models.Model):
+    description = models.CharField(max_length=250, blank=True, null=True)
 
     created_date = models.DateTimeField(auto_now_add=True, editable=False)
     modified_date = models.DateTimeField(auto_now=True, editable=False)
 
-    def __str__(self):
-        return self.name
+    class Meta:
+        abstract = True
 
-class ScoreCategory(models.Model):
+class ParentScoreCategory(BaseModel):
     name = models.CharField(max_length=150, unique=True)
-    description = models.CharField(max_length=250)
-    
-    parentscorecategory = models.ForeignKey(ParentScoreCategory, related_name ='score_categories', on_delete=models.CASCADE)
-
-    created_date = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_date = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
         return self.name
 
-class ScoreMetric(models.Model):
+class Round(BaseModel):
     name = models.CharField(max_length=150, unique=True)
-    description = models.CharField(max_length=250)
-
-    created_date = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_date = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
         return self.name
 
-class Level(models.Model):
+class ScoreMetric(BaseModel):
     name = models.CharField(max_length=150, unique=True)
-    description = models.CharField(max_length=250)
-
-    created_date = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_date = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
         return self.name
 
-class Team(models.Model):
+class Championship(BaseModel):
+    name = models.CharField(max_length=150, unique=True)
+    date = models.DateField(default=timezone.now)
+    address = models.CharField(max_length=250)
+
+    def __str__(self):
+        return self.name
+
+class Gender(BaseModel):
+    name = models.CharField(max_length=150, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class Level(BaseModel):
+    name = models.CharField(max_length=150, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class Division(BaseModel):
+    name = models.CharField(max_length=150, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class Category(BaseModel):
+    name = models.CharField(max_length=150, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class Team(BaseModel):
     name = models.CharField(max_length=150, unique=True)
     total_men = models.IntegerField()
     total_women = models.IntegerField()
     coach = models.CharField(max_length=150)
-    description = models.CharField(max_length=250)
-
-    level = models.ForeignKey(Level, related_name='teams', on_delete=models.CASCADE)
-
-    created_date = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_date = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
         return self.name
 
-class Round(models.Model):
+class ScoreCategory(BaseModel):
     name = models.CharField(max_length=150, unique=True)
-    description = models.CharField(max_length=250)
 
-    created_date = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_date = models.DateTimeField(auto_now=True, editable=False)
+    parentscorecategory = models.ForeignKey(ParentScoreCategory, related_name ='score_categories', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
 
-class Championship(models.Model):
-    name = models.CharField(max_length=150, unique=True)
-    date = models.DateField(default=timezone.now)
-    address = models.CharField(max_length=250)
-    description = models.CharField(max_length=250)
-
-    created_date = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_date = models.DateTimeField(auto_now=True, editable=False)
+class UserScoreCategory(BaseModel):
+    
+    user = models.ForeignKey('auth.User', related_name='user_score_categories', on_delete=models.CASCADE)
+    scorecategory = models.ForeignKey(ScoreCategory, related_name='user_score_categories',  on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return 'user id: %i, scorecategory id: %i' % (self.user, self.scorecategory)
 
-class Registration(models.Model):
-    date = models.DateField(default=timezone.now)
+class Registration(BaseModel):
+    date = models.DateTimeField(auto_now_add=True)
 
-    championship = models.ForeignKey(Championship, related_name='registrations', on_delete=models.CASCADE)
+    gender = models.ForeignKey(Gender, related_name='registrations', on_delete=models.CASCADE)
+    level = models.ForeignKey(Level, related_name='registrations', on_delete=models.CASCADE)
+    division = models.ForeignKey(Division, related_name='registrations', on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, related_name='registrations', on_delete=models.CASCADE)
     team = models.ForeignKey(Team, related_name='registrations', on_delete=models.CASCADE)
 
-    created_date = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_date = models.DateTimeField(auto_now=True, editable=False)
-
     def __str__(self):
-        return 'championship id: %i team id: %i' % (self.championship, self.team)
+        return 'gender id: %i, level id: %i, division id: %i, category id: %i, team id: %i' % (self.gender, self.level, self.division, self.category, self.team)
 
-class UserScoreCategoryChampionship(models.Model):
-    
-    user = models.ForeignKey('auth.User', related_name='user_score_category_championships', on_delete=models.CASCADE)
-    scorecategory = models.ForeignKey(ScoreCategory, related_name='user_score_category_championships',  on_delete=models.CASCADE)
-    championship = models.ForeignKey(Championship, related_name='user_score_category_championships',  on_delete=models.CASCADE)
 
-    created_date = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_date = models.DateTimeField(auto_now=True, editable=False)
-
-    def __str__(self):
-        return 'user id: %i scorecategory id: %i championship id: %i' % (self.user, self.scorecategory, self.championship)
-
-class ScoreSheet(models.Model):
+class ScoreSheet(BaseModel):
     min_score = models.DecimalField(max_digits=10, decimal_places=3)
     max_score = models.DecimalField(max_digits=10, decimal_places=3)
-    score = models.DecimalField(max_digits=10, decimal_places=3)
+    score = models.DecimalField(max_digits=10, decimal_places=3, default=min_score)
 
-    championship = models.ForeignKey(Championship, related_name='score_sheets', on_delete=models.CASCADE)
-    team = models.ForeignKey(Team, related_name='score_sheets', on_delete=models.CASCADE)
     round = models.ForeignKey(Round, related_name='score_sheets', on_delete=models.CASCADE)
-    scorecategory = models.ForeignKey(ScoreCategory, related_name='score_sheets', on_delete=models.CASCADE)
     scoremetric = models.ForeignKey(ScoreMetric, related_name='score_sheets', on_delete=models.CASCADE)
+    registration = models.ForeignKey(Registration, related_name='score_sheets', on_delete=models.CASCADE)
+    championship = models.ForeignKey(Championship, related_name='score_sheets', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', related_name='score_sheets', on_delete=models.CASCADE)
-
-    created_date = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_date = models.DateTimeField(auto_now=True, editable=False)
-
+    scorecategory = models.ForeignKey(ScoreCategory, related_name='score_sheets', on_delete=models.CASCADE)
+    
     def __str__(self):
-        return 'championship id: %i round id: %i team id: %i scorecategory id: %i scoremetric id: %i user id: %i' % (self.championship, self.round, self.team, self.scorecategory, self.scoremetric, self.user)
+        return 'round id: %i, scoremetric id: %i, registration id: %i, championship id: %i, user id: %i, scorecategory id: %i' % (self.round, self.scoremetric, self.registration, self.championship, self.user, self.scorecategory)
