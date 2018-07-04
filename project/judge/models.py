@@ -94,7 +94,7 @@ class Championship(BaseModel):
     scoresheet = models.ForeignKey(ScoreSheet, related_name='championships', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ]- [ {} ]'.format(self.name, str(self.date), self.scoresheet)
+        return '[ {} ] - [ {} ] - [ {} ]'.format(self.name, str(self.date), self.scoresheet)
     
     class Meta:
         unique_together = (('name', 'date'),)
@@ -107,21 +107,21 @@ class Registration(BaseModel):
     division = models.ForeignKey(Division, related_name='registrations', on_delete=models.CASCADE)
     category = models.ForeignKey(Category, related_name='registrations', on_delete=models.CASCADE)
     team = models.ForeignKey(Team, related_name='registrations', on_delete=models.CASCADE)
+    championship = models.ForeignKeyKey(Championship, related_name='registrations', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(str(self.date), self.gender, self.level, self.division, self.category, self.team)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(str(self.date), self.gender, self.level, self.division, self.category, self.team, self.championship)
 
 class ScoreSheetElement(BaseModel):
     min_score = models.DecimalField(max_digits=10, decimal_places=3)
     max_score = models.DecimalField(max_digits=10, decimal_places=3)
 
     scoremetric = models.ForeignKey(ScoreMetric, related_name='score_sheet_elements', on_delete=models.CASCADE)
-    championship = models.ForeignKey(Championship, related_name='score_sheet_elements', on_delete=models.CASCADE)
     scorecategory = models.ForeignKey(ScoreCategory, related_name='score_sheet_elements', on_delete=models.CASCADE)
     scoresheet = models.ForeignKey(ScoreSheet, related_name='score_sheet_elements', on_delete=models.CASCADE)
     
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ]'.format(self.scoremetric, self.championship, self.scorecategory)
+        return '[ {} ] - [ {} ] - [ {} ]'.format(self.scoremetric, self.scorecategory, self.scoresheet)
 
 class UserScoreSheetElement(BaseModel):
     score = models.DecimalField(max_digits=10, decimal_places=3)
@@ -133,7 +133,7 @@ class UserScoreSheetElement(BaseModel):
     scoresheetelement = models.ForeignKey(ScoreSheetElement, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.score, self.round, self.registration, self.user, self.scoresheetelement)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.score, self.completed, self.round, self.registration, self.user, self.scoresheetelement)
 
 class UserSkillPermission(BaseModel):
 
