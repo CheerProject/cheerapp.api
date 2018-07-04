@@ -1,121 +1,144 @@
 from django.db import models
+import datetime
+from django.utils import timezone
 
 # Create your models here.
 
-class ParentScoreCategory(models.Model):
-    name = models.CharField(max_length=150, unique=True)
-    description = models.CharField(max_length=250)
+class BaseModel(models.Model):
+    description = models.CharField(max_length=250, blank=True, null=True)
 
-    created_date = models.DateTimeField()
-    modified_date = models.DateTimeField()
+    created_date = models.DateTimeField(auto_now_add=True, editable=False)
+    modified_date = models.DateTimeField(auto_now=True, editable=False)
+
+    class Meta:
+        abstract = True
+
+class ScoreSheetType(BaseModel):
+    name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return self.name
 
-class ScoreCategory(models.Model):
+class ParentScoreCategory(BaseModel):
     name = models.CharField(max_length=150, unique=True)
-    description = models.CharField(max_length=250)
-    
-    parentscorecategory = models.ForeignKey(ParentScoreCategory, on_delete=models.CASCADE)
-
-    created_date = models.DateTimeField()
-    modified_date = models.DateTimeField()
 
     def __str__(self):
         return self.name
 
-class ScoreMetric(models.Model):
+class Round(BaseModel):
     name = models.CharField(max_length=150, unique=True)
-    description = models.CharField(max_length=250)
-
-    created_date = models.DateTimeField()
-    modified_date = models.DateTimeField()
 
     def __str__(self):
         return self.name
 
-class Level(models.Model):
+class ScoreMetric(BaseModel):
     name = models.CharField(max_length=150, unique=True)
-    description = models.CharField(max_length=250)
-
-    created_date = models.DateTimeField()
-    modified_date = models.DateTimeField()
 
     def __str__(self):
         return self.name
 
-class Team(models.Model):
+class Gender(BaseModel):
+    name = models.CharField(max_length=150, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class Level(BaseModel):
+    name = models.CharField(max_length=150, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class Division(BaseModel):
+    name = models.CharField(max_length=150, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class Category(BaseModel):
+    name = models.CharField(max_length=150, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class Team(BaseModel):
     name = models.CharField(max_length=150, unique=True)
     total_men = models.IntegerField()
     total_women = models.IntegerField()
     coach = models.CharField(max_length=150)
-    description = models.CharField(max_length=250)
-
-    level = models.ForeignKey(Level, on_delete=models.CASCADE)
-
-    created_date = models.DateTimeField()
-    modified_date = models.DateTimeField()
 
     def __str__(self):
         return self.name
 
-class Round(models.Model):
+class ScoreSheet(BaseModel):
     name = models.CharField(max_length=150, unique=True)
-    description = models.CharField(max_length=250)
 
-    created_date = models.DateTimeField()
-    modified_date = models.DateTimeField()
+    scoresheettype = models.ForeignKey(ScoreSheetType, related_name='score_sheets', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return '[ {} ] - [ {} ]'.format(self.name, self.scoresheettype)
 
-class Championship(models.Model):
+class ScoreCategory(BaseModel):
     name = models.CharField(max_length=150, unique=True)
-    date = models.DateField()
+
+    parentscorecategory = models.ForeignKey(ParentScoreCategory, related_name ='score_categories', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '[ {} ] - [ {} ]'.format(self.name, self.parentscorecategory)
+
+class Championship(BaseModel):
+    name = models.CharField(max_length=150)
+    date = models.DateField(default=timezone.now)
     address = models.CharField(max_length=250)
-    description = models.CharField(max_length=250)
 
-    created_date = models.DateTimeField()
-    modified_date = models.DateTimeField()
+    scoresheet = models.ForeignKey(ScoreSheet, related_name='championships', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
-
-class Registration(models.Model):
-    date = models.DateField()
-
-    championship = models.ForeignKey(Championship, on_delete=models.CASCADE)
-    team = models.ForeignKey(Team, on_delete=models.CASCADE)
-
-    created_date = models.DateTimeField()
-    modified_date = models.DateTimeField()
-
-    def __str__(self):
-        return 'championship id: %i team id: %i' % (self.championship, self.team)
-
-class UserScoreCategoryChampionship(models.Model):
+        return '[ {} ] - [ {} ] - [ {} ]'.format(self.name, str(self.date), self.scoresheet)
     
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    scorecategory = models.ForeignKey(ScoreCategory, on_delete=models.CASCADE)
-    championship = models.ForeignKey(Championship, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = (('name', 'date'),)
 
-    created_date = models.DateTimeField()
-    modified_date = models.DateTimeField()
+class Registration(BaseModel):
+    date = models.DateTimeField(auto_now_add=True)
+
+    gender = models.ForeignKey(Gender, related_name='registrations', on_delete=models.CASCADE)
+    level = models.ForeignKey(Level, related_name='registrations', on_delete=models.CASCADE)
+    division = models.ForeignKey(Division, related_name='registrations', on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, related_name='registrations', on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, related_name='registrations', on_delete=models.CASCADE)
+    championship = models.ForeignKeyKey(Championship, related_name='registrations', on_delete=models.CASCADE)
 
     def __str__(self):
-        return 'user id: %i scorecategory id: %i championship id: %i' % (self.user, self.scorecategory, self.championship)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(str(self.date), self.gender, self.level, self.division, self.category, self.team, self.championship)
 
-class ScoreSheet(models.Model):
+class ScoreSheetElement(BaseModel):
     min_score = models.DecimalField(max_digits=10, decimal_places=3)
     max_score = models.DecimalField(max_digits=10, decimal_places=3)
-    score = models.DecimalField(max_digits=10, decimal_places=3)
 
-    championship = models.ForeignKey(Championship, on_delete=models.CASCADE)
-    round = models.ForeignKey(Round, on_delete=models.CASCADE)
-    team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    scorecategory = models.ForeignKey(ScoreCategory, on_delete=models.CASCADE)
-    scoremetric = models.ForeignKey(ScoreMetric, on_delete=models.CASCADE)
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    scoremetric = models.ForeignKey(ScoreMetric, related_name='score_sheet_elements', on_delete=models.CASCADE)
+    scorecategory = models.ForeignKey(ScoreCategory, related_name='score_sheet_elements', on_delete=models.CASCADE)
+    scoresheet = models.ForeignKey(ScoreSheet, related_name='score_sheet_elements', on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return '[ {} ] - [ {} ] - [ {} ]'.format(self.scoremetric, self.scorecategory, self.scoresheet)
+
+class UserScoreSheetElement(BaseModel):
+    score = models.DecimalField(max_digits=10, decimal_places=3)
+    completed = models.BooleanField(default=False)
+
+    round = models.ForeignKey(Round, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
+    registration = models.ForeignKey(Registration, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', related_name='user_score_sheet_elements', on_delete=models.CASCADE)
+    scoresheetelement = models.ForeignKey(ScoreSheetElement, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
 
     def __str__(self):
-        return 'championship id: %i round id: %i team id: %i scorecategory id: %i scoremetric id: %i user id: %i' % (self.championship, self.round, self.team, self.scorecategory, self.scoremetric, self.user)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.score, self.completed, self.round, self.registration, self.user, self.scoresheetelement)
+
+class UserSkillPermission(BaseModel):
+
+    user = models.ForeignKey('auth.User', related_name='user_score_sheets', on_delete=models.CASCADE)
+    scoresheetelement = models.ForeignKey(ScoreSheetElement, related_name='user_score_sheets', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '[ {} ] - [ {} ]'.format(self.user, self.scoresheetelement)
