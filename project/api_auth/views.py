@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import viewsets
-from project.api_auth.serializers import UserSerializer, MyTokenObtainPairSerializer
+from project.api_auth.serializers import UserSerializer
 
 
 from rest_framework.views import APIView
@@ -12,14 +12,10 @@ from rest_framework.authtoken.models import Token
 
 from rest_framework.permissions import AllowAny
 
-from rest_framework_simplejwt.views import TokenObtainPairView
-
 # Create your views here.
 
 
-
-
-class Signup(APIView): 
+class Signup(APIView):
     """
     Create or delete a new user.
     """
@@ -27,18 +23,20 @@ class Signup(APIView):
 
     def post(self, request, format=None):
         serializer = UserSerializer(data=request.data)
-        
+
         if serializer.is_valid():
-            #set as false  if email verification feature active
+            # set as false  if email verification feature active
             serializer.validated_data['is_active'] = True
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UserDetail(APIView):
     """
     Retrieve, update or delete a user instance.
     """
+
     def get_object(self, pk):
         try:
             return User.objects.get(pk=pk)
@@ -62,7 +60,3 @@ class UserDetail(APIView):
         user = self.get_object(pk)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer 
