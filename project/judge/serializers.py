@@ -1,6 +1,9 @@
 
 from rest_framework import serializers
-from project.api_auth.serializers import UserSerializer
+
+from ..api_auth.serializers import (
+    UserSerializer
+)
 from .models import (
     ParentScoreCategory,
     Round,
@@ -16,11 +19,17 @@ from .models import (
     Registration,
     ScoreSheet,
     UserSkillPermission,
-    ScoreSheetType
+    ScoreSheetType,
+    Group,
+    DivisionGroup,
+    Status,
+    LocationType,
+    Location,
+    ScoreSheetElement
 )
 
 #done
-class GenderSerializer(serializers.ModelSerializer):
+class GenderReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Gender
@@ -28,7 +37,7 @@ class GenderSerializer(serializers.ModelSerializer):
         required_fields = ('name')
 
 #done
-class LevelSerializer(serializers.ModelSerializer):
+class LevelReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Level
@@ -36,7 +45,7 @@ class LevelSerializer(serializers.ModelSerializer):
         required_fields = ('name')
 
 #done
-class DivisionSerializer(serializers.ModelSerializer):
+class DivisionReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Division
@@ -44,7 +53,7 @@ class DivisionSerializer(serializers.ModelSerializer):
         required_fields = ('name')
 
 #done
-class CategorySerializer(serializers.ModelSerializer):
+class CategoryReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
@@ -52,7 +61,15 @@ class CategorySerializer(serializers.ModelSerializer):
         required_fields = ('name')
 
 #done
-class RoundSerializer(serializers.ModelSerializer):
+class GroupReadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Group
+        fields = ('id', 'name')
+        required_fields = ('name')
+
+#done
+class RoundReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Round
@@ -60,47 +77,7 @@ class RoundSerializer(serializers.ModelSerializer):
         required_fields = ('name')
 
 #done
-class ScoreMetricSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = ScoreMetric
-        fields = ('id', 'name')
-        required_fields = ('name')
-
-#done
-class UserScoreSheetElementSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = UserScoreSheetElement
-        fields = ('id', 'score', 'completed')
-        required_fields = ('score', 'completed')
-
-#done
-class RegistrationSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Registration
-        fields = ('id', 'date')
-        required_fields = ('date')
-
-#done
-class TeamSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Team
-        fields = ('id', 'name', 'total_men', 'total_women', 'coach')
-        required_fields = ('name')
-
-#done
-class ScoreSheetSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = ScoreSheet
-        fields = ('id', 'name')
-        required_fields = ('name')
-
-#done
-class ScoreSheetTypeSerializer(serializers.ModelSerializer):
+class ScoreSheetTypeReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ScoreSheetType
@@ -108,22 +85,31 @@ class ScoreSheetTypeSerializer(serializers.ModelSerializer):
         required_fields = ('name')
 
 #done
-class ScoreCategorySerializer(serializers.ModelSerializer):
-
+class ScoreMetricReadSerializer(serializers.ModelSerializer):
+    
     class Meta:
-        model = ScoreCategory
+        model = ScoreMetric
         fields = ('id', 'name')
         required_fields = ('name')
 
 #done
-class UserSkillPermissionSerializer(serializers.ModelSerializer):
-
+class LocationTypeReadSerializer(serializers.ModelSerializer):
+    
     class Meta:
-        model = UserSkillPermission
-        fields = ('id')
+        model = LocationType
+        fields = ('id', 'name')
+        required_fields = ('name')
 
 #done
-class ParentScoreCategorySerializer(serializers.ModelSerializer):
+class StatusReadSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Status
+        fields = ('id', 'name')
+        required_fields = ('name')
+
+#done
+class ParentScoreCategoryReadSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ParentScoreCategory
@@ -131,9 +117,81 @@ class ParentScoreCategorySerializer(serializers.ModelSerializer):
         required_fields = ('name')
 
 #done
-class ChampionshipSerializer(serializers.ModelSerializer):
+class DivisionGroupReadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DivisionGroup
+        fields = ('id', 'gender', 'level', 'division', 'category', 'group')
+        required_fields = ('gender', 'level', 'division', 'caegory', 'group')
+
+#done
+class ScoreCategoryReadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ScoreCategory
+        fields = ('id', 'name', 'parentscorecategory')
+        required_fields = ('name', 'parentscorecategory')
+
+#done
+class LocationReadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Location
+        fields = ('id', 'name', 'locationtype', 'location')
+        required_fields = ('name', 'locationtype', 'location')
+
+#done
+class ScoreSheetReadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ScoreSheet
+        fields = ('id', 'name', 'scoresheettype')
+        required_fields = ('name', 'scoresheettype')
+
+#done
+class ScoreSheetElementReadSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ScoreSheetElement
+        fields = ('id', 'min_score', 'max_score', 'scoremetric', 'scorecategory', 'scoresheet')
+        required_fields = ('min_score', 'max_score', 'scoremetric', 'scorecategory', 'scoresheet')
+
+#done
+class TeamReadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Team
+        fields = ('id', 'name', 'location')
+        required_fields = ('name', 'location')
+
+#done
+class UserSkillPermissionReadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserSkillPermission
+        fields = ('id', 'user', 'scorecategory')
+        required_fields = ('user', 'scorecategory')
+
+#done
+class ChampionshipReadSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Championship
-        fields = ('id', 'name', 'date', 'address')
-        required_fields = ('name')
+        fields = ('id', 'name', 'date', 'address', 'scoresheet')
+        required_fields = ('name', 'date', 'address', 'scoresheet')
+
+#done
+class RegistrationReadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Registration
+        fields = ('id', 'date', 'total_men', 'total_women', 'coach', 'team', 'championship', 'divisiongroup', 'status')
+        required_fields = ('date', 'total_men', 'total_women', 'coach', 'team', 'championship', 'divisiongroup', 'status')
+
+#done
+class UserScoreSheetElementReadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserScoreSheetElement
+        fields = ('id', 'score', 'completed', 'registration', 'scoresheetelement', 'user', 'round')
+        required_fields = ('score', 'completed', 'registration', 'scoresheetelement', 'user', 'round')

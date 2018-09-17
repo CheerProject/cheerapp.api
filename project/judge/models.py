@@ -17,55 +17,55 @@ class ScoreSheetType(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.name
+        return '[ {} ]'.format(self.name)
 
 class ParentScoreCategory(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.name
+        return '[ {} ]'.format(self.name)
 
 class Round(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.name
+        return '[ {} ]'.format(self.name)
 
 class ScoreMetric(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.name
+        return '[ {} ]'.format(self.name)
 
 class Gender(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.name
+        return '[ {} ]'.format(self.name)
 
 class Level(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.name
+        return '[ {} ]'.format(self.name)
 
 class Division(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.name
+        return '[ {} ]'.format(self.name)
 
 class Category(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.name
+        return '[ {} ]'.format(self.name)
 
 class Group(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.name
+        return '[ {} ]'.format(self.name)
 
 class DivisionGroup(BaseModel):
 
@@ -76,33 +76,36 @@ class DivisionGroup(BaseModel):
     group = models.ForeignKey(Group, related_name='division_group', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ]- [ {} ]- [ {} ]- [ {} ]'.format(self.gender, self.level, self.division, self.category, self.group)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.gender, self.level, self.division, self.category, self.group)
 
 class LocationType(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.name
+        return '[ {} ]'.format(self.name)
 
 class Location(BaseModel):
     name = models.CharField(max_length=150)
     
     locationtype = models.ForeignKey(LocationType, related_name='locations', on_delete=models.CASCADE)
-    location = models.ForeignKey('self', related_name='locations', on_delete=models.CASCADE)
+    location = models.ForeignKey('self', related_name='locations', on_delete=models.CASCADE, default=None, blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return '[ {} ] - [ {} ] - [ {} ]'.format(self.name, self.locationtype, self.location)
+    
+    class Meta:
+        unique_together = (('name', 'locationtype'),)
 
 class Team(BaseModel):
     name = models.CharField(max_length=150, unique=True)
-    total_men = models.IntegerField()
-    total_women = models.IntegerField()
-    coach = models.CharField(max_length=150)
 
     location = models.ForeignKey(Location, related_name='teams', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return '[ {} ] - [ {} ]'.format(self.name, self.location)
+    
+    class Meta:
+        unique_together = (('name', 'location'),)
 
 class ScoreSheet(BaseModel):
     name = models.CharField(max_length=150, unique=True)
@@ -124,7 +127,7 @@ class Status(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.name
+        return '[ {} ]'.format(self.name)
 
 class Championship(BaseModel):
     name = models.CharField(max_length=150)
@@ -134,21 +137,27 @@ class Championship(BaseModel):
     scoresheet = models.ForeignKey(ScoreSheet, related_name='championships', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ]'.format(self.name, str(self.date), self.scoresheet)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.name, str(self.date), self.address, self.scoresheet)
     
     class Meta:
         unique_together = (('name', 'date'),)
 
 class Registration(BaseModel):
     date = models.DateTimeField(auto_now_add=True)
-
+    total_men = models.IntegerField()
+    total_women = models.IntegerField()
+    coach = models.CharField(max_length=150)
+    
     team = models.ForeignKey(Team, related_name='registrations', on_delete=models.CASCADE)
     championship = models.ForeignKey(Championship, related_name='registrations', on_delete=models.CASCADE)
     divisiongroup = models.ForeignKey(DivisionGroup, related_name='registrations', on_delete=models.CASCADE)
     status = models.ForeignKey(Status, related_name='registrations', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ]- [ {} ]'.format(str(self.date), self.team, self.championship, self.divisiongroup, self.status)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]- [ {} ]'.format(str(self.date), self.total_men, self.total_women, self.coach, self.team, self.championship, self.divisiongroup, self.status)
+    
+    class Meta:
+        unique_together = (('team', 'championship', 'divisiongroup'),)
 
 class ScoreSheetElement(BaseModel):
     min_score = models.DecimalField(max_digits=10, decimal_places=3)
@@ -159,7 +168,10 @@ class ScoreSheetElement(BaseModel):
     scoresheet = models.ForeignKey(ScoreSheet, related_name='score_sheet_elements', on_delete=models.CASCADE)
     
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ]'.format(self.scoremetric, self.scorecategory, self.scoresheet)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.min_score, self.max_score, self.scoremetric, self.scorecategory, self.scoresheet)
+    
+    class Meta:
+        unique_together = (('scoremetric', 'scorecategory', 'scoresheet'),)
 
 class UserScoreSheetElement(BaseModel):
     score = models.DecimalField(max_digits=10, decimal_places=3)
@@ -172,6 +184,9 @@ class UserScoreSheetElement(BaseModel):
     
     def __str__(self):
         return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.score, self.completed, self.round, self.registration, self.user, self.scoresheetelement)
+    
+    class Meta:
+        unique_together = (('registration', 'scoresheetelement', 'user', 'round'),)
 
 class UserSkillPermission(BaseModel):
 
@@ -180,3 +195,6 @@ class UserSkillPermission(BaseModel):
 
     def __str__(self):
         return '[ {} ] - [ {} ]'.format(self.user, self.scorecategory)
+    
+    class Meta:
+        unique_together = (('user', 'scorecategory'),)
