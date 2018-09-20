@@ -39,5 +39,6 @@ router.register(r'user-score-sheet-element', UserScoreSheetElementViewSet)
 
 
 urlpatterns = [
-    url(r'', include(router.urls))
+    url(r'', include(router.urls)),
+    url(r'^championships/(?P<pk>[0-9]+)$', DashboardViewSet.as_view()),
 ]
