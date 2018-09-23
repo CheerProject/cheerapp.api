@@ -6,6 +6,7 @@ from ..api_auth.serializers import (
 )
 
 from .models import (
+    Institution,
     ParentScoreCategory,
     Round,
     ScoreMetric,
@@ -32,6 +33,14 @@ from .models import (
 #Los write serializers
 
 #done
+class InstitutionWriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Institution
+        fields = ('id', 'name')
+        required_fields = ('name')
+
+#done
 class GenderWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -49,7 +58,7 @@ class LevelWriteSerializer(serializers.ModelSerializer):
 
 #done
 class DivisionWriteSerializer(serializers.ModelSerializer):
-
+    
     class Meta:
         model = Division
         fields = ('id', 'name')
@@ -124,8 +133,8 @@ class DivisionGroupWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DivisionGroup
-        fields = ('id', 'gender', 'level', 'division', 'category', 'group')
-        required_fields = ('gender', 'level', 'division', 'caegory', 'group')
+        fields = ('id', 'gender', 'level', 'division', 'category', 'group', 'institution')
+        required_fields = ('gender', 'level', 'division', 'caegory', 'group', 'institution')
 
 #done
 class ScoreCategoryWriteSerializer(serializers.ModelSerializer):
@@ -189,8 +198,8 @@ class RegistrationWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Registration
-        fields = ('id', 'date', 'total_men', 'total_women', 'coach', 'team', 'championship', 'divisiongroup', 'status')
-        required_fields = ('date', 'total_men', 'total_women', 'coach', 'team', 'championship', 'divisiongroup', 'status')
+        fields = ('id', 'date', 'total_men', 'total_women', 'coach', 'team', 'championship', 'divisiongroup', 'status', 'order')
+        required_fields = ('date', 'total_men', 'total_women', 'coach', 'team', 'championship', 'divisiongroup', 'status', 'order')
 
 #done
 class UserScoreSheetElementWriteSerializer(serializers.ModelSerializer):

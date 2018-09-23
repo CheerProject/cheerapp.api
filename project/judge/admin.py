@@ -2,6 +2,7 @@ from django.contrib import admin
 
 
 from .models import (
+    Institution,
     ScoreSheetType,
     ParentScoreCategory,
     Round,
@@ -26,6 +27,14 @@ from .models import (
 )
 
 # Admin models
+
+class InstitutionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+    list_display_links = ('name',)
+
+class ScheduleAdmin(admin.ModelAdmin):
+    list_display = ('id', 'order')
+    list_display_links = ('order',)
 
 class ScoreSheetTypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
@@ -64,8 +73,8 @@ class GroupAdmin(admin.ModelAdmin):
     list_display_links = ('name',)
 
 class DivisionGroupAdmin(admin.ModelAdmin):
-    list_display = ('id', 'gender', 'level', 'division', 'category', 'group')
-    list_display_links = ('gender', 'level', 'division', 'category', 'group',)
+    list_display = ('id', 'gender', 'level', 'division', 'category', 'group', 'institution')
+    list_display_links = ('gender', 'level', 'division', 'category', 'group', 'institution',)
 
 class TeamAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'location')
@@ -96,8 +105,8 @@ class ChampionshipAdmin(admin.ModelAdmin):
     list_display_links = ('name', 'date', 'address', 'scoresheet',)
 
 class RegistrationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'date', 'total_men', 'total_women', 'coach', 'team', 'championship', 'divisiongroup', 'status')
-    list_display_links = ('date', 'total_men', 'total_women', 'coach', 'team', 'championship', 'divisiongroup', 'status',)
+    list_display = ('id', 'date', 'total_men', 'total_women', 'coach', 'team', 'championship', 'divisiongroup', 'status', 'order')
+    list_display_links = ('date', 'total_men', 'total_women', 'coach', 'team', 'championship', 'divisiongroup', 'status', 'order',)
 
 class ScoreSheetElementAdmin(admin.ModelAdmin):
     list_display = ('id', 'min_score', 'max_score', 'scoremetric', 'scorecategory', 'scoresheet')
@@ -113,7 +122,7 @@ class UserSkillPermissionAdmin(admin.ModelAdmin):
 
 
 # register your models here.
-
+admin.site.register(Institution, InstitutionAdmin)
 admin.site.register(ScoreSheetType, ScoreSheetTypeAdmin)
 admin.site.register(ParentScoreCategory, ParentScoreCategoryAdmin)
 admin.site.register(Round, RoundAdmin)

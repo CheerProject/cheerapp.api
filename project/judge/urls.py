@@ -14,6 +14,7 @@ from .views import *
 
 router = DefaultRouter()
 #catalogs
+router.register(r'institution', InstitutionViewSet)
 router.register(r'gender', GenderViewSet)
 router.register(r'level', LevelViewSet)
 router.register(r'division', DivisionViewSet)

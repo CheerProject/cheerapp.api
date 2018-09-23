@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny
 #from .schemas import get_predictor_schema
 from decimal import Decimal
+import json
 
 import logging
 
@@ -20,6 +21,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Create your views here.
+
+class InstitutionViewSet(viewsets.ModelViewSet):
+    queryset = Institution.objects.all()
+    serializer_class = InstitutionWriteSerializer
 
 class GenderViewSet(viewsets.ModelViewSet):
     queryset = Gender.objects.all()
@@ -113,12 +118,31 @@ class DashboardViewSet(APIView):
         try:
             return Registration.objects.filter(championship__id=pk)
         except Registration.DoesNotExist:
-            logger.error("Registration not found")
+            logger.error("Championship not found")
             raise Http404
     
 
     def get(self, request, pk, format=None):
-        registration = self.get_registrations(pk)
-        serializer = RegistrationReadSerializer(registration, many=True)
+        registrations = self.get_registrations(pk)
+        reg_list1 = []
+        reg_list2 = set()
+        reg_list3 = dict()
+
+        for reg in registrations:
+            reg_list1.append(reg.divisiongroup.division)
+            reg_list2.add(reg.divisiongroup.division)
+            
+            participantes = reg_list1.count(reg.divisiongroup.division)
+            pendientes = reg_list3.get(reg.divisiongroup.division.name, [0,0,0])[2] + (1 if reg.status.name=='on time' else 0)
+            reg_list3[reg.divisiongroup.division.name] = [reg.divisiongroup.division, participantes, pendientes]
+        
+        serializer = DivisionWriteSerializer(reg_list2, many=True)
+
+        for dd in serializer.data:
+            dd['participantes'] = reg_list3[dd['name']][1]
+            dd['pendientes'] = reg_list3[dd['name']][2]
+
         return Response(serializer.data)
+
+
 

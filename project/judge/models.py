@@ -13,6 +13,12 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+class Institution(BaseModel):
+    name = models.CharField(max_length=150, unique=True)
+
+    def __str__(self):
+        return '[ {} ]'.format(self.name)
+
 class ScoreSheetType(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
@@ -74,9 +80,10 @@ class DivisionGroup(BaseModel):
     division = models.ForeignKey(Division, related_name='division_groups', on_delete=models.CASCADE)
     category = models.ForeignKey(Category, related_name='division_groups', on_delete=models.CASCADE)
     group = models.ForeignKey(Group, related_name='division_group', on_delete=models.CASCADE)
+    institution = models.ForeignKey(Institution, related_name='division_group', on_delete=models.CASCADE)    
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.gender, self.level, self.division, self.category, self.group)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.gender, self.level, self.division, self.category, self.group, self.institution)
 
 class LocationType(BaseModel):
     name = models.CharField(max_length=150, unique=True)
@@ -147,6 +154,7 @@ class Registration(BaseModel):
     total_men = models.IntegerField()
     total_women = models.IntegerField()
     coach = models.CharField(max_length=150)
+    order = models.IntegerField()
     
     team = models.ForeignKey(Team, related_name='registrations', on_delete=models.CASCADE)
     championship = models.ForeignKey(Championship, related_name='registrations', on_delete=models.CASCADE)
@@ -154,7 +162,7 @@ class Registration(BaseModel):
     status = models.ForeignKey(Status, related_name='registrations', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]- [ {} ]'.format(str(self.date), self.total_men, self.total_women, self.coach, self.team, self.championship, self.divisiongroup, self.status)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]- [ {} ] - [ {} ]'.format(str(self.date), self.total_men, self.total_women, self.coach, self.team, self.championship, self.divisiongroup, self.status, self.order)
     
     class Meta:
         unique_together = (('team', 'championship', 'divisiongroup'),)
