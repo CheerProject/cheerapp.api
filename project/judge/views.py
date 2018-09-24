@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny
 #from .schemas import get_predictor_schema
 from decimal import Decimal
+
 import json
 
 import logging
@@ -112,18 +113,32 @@ class UserScoreSheetElementViewSet(viewsets.ModelViewSet):
 
 #creación de dashboard
 
+class TabsViewSet(APIView):
+
+    def get_registrations(self, pk1, pk2):
+        try:
+            return Registration.objects.filter(championship__id=pk1, divisiongroup__division__id=pk2)
+        except Registration.DoesNotExist:
+            logger.error("Division not found")
+            raise Http404
+    
+    def get(self, request, pk1, pk2, format=None):
+        registrations = self.get_registrations(pk1, pk2)
+        serializer = RegistrationReadSerializer(registrations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class DashboardViewSet(APIView):
 
-    def get_registrations(self, pk):
+    def get_registrations(self, pk1):
         try:
-            return Registration.objects.filter(championship__id=pk)
+            return Registration.objects.filter(championship__id=pk1)
         except Registration.DoesNotExist:
             logger.error("Championship not found")
             raise Http404
     
 
-    def get(self, request, pk, format=None):
-        registrations = self.get_registrations(pk)
+    def get(self, request, pk1, format=None):
+        registrations = self.get_registrations(pk1)
         reg_list1 = []
         reg_list2 = set()
         reg_list3 = dict()
@@ -138,11 +153,12 @@ class DashboardViewSet(APIView):
         
         serializer = DivisionWriteSerializer(reg_list2, many=True)
 
-        for dd in serializer.data:
-            dd['participantes'] = reg_list3[dd['name']][1]
-            dd['pendientes'] = reg_list3[dd['name']][2]
+        for data in serializer.data:
+            name = data['name']
+            data['participantes'] = reg_list3[name][1]
+            data['pendientes'] = reg_list3[name][2]
 
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
