@@ -11,6 +11,7 @@ from rest_framework.reverse import reverse
 from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny
+from rest_framework.renderers import JSONRenderer
 #from .schemas import get_predictor_schema
 from decimal import Decimal
 
@@ -42,10 +43,6 @@ class DivisionViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategoryWriteSerializer
-
-class GroupViewSet(viewsets.ModelViewSet):
-    queryset = Group.objects.all()
-    serializer_class = GroupWriteSerializer
 
 class RoundViewSet(viewsets.ModelViewSet):
     queryset = Round.objects.all()
@@ -111,9 +108,49 @@ class UserScoreSheetElementViewSet(viewsets.ModelViewSet):
     queryset = UserScoreSheetElement.objects.all()
     serializer_class = UserScoreSheetElementWriteSerializer
 
+class ChampionshipScoreSheetViewSet(viewsets.ModelViewSet):
+    queryset = ChampionshipScoreSheet.objects.all()
+    serializer_class = ChampionshipScoreSheetWriteSerializer
+
 #creación de dashboard
 
+class ScoreSheetUserViewSet(APIView):
+    def get_scoresheets(self, pk1, pk2, pk3):
+        try:
+            scoresheet_id = Registration.objects.get(pk=pk2).championshipscoresheet.scoresheet.id
+            return UserSkillPermission.objects.filter(user__id=pk1, round__id=pk3, scoresheet__id=scoresheet_id)
+        except UserSkillPermission.DoesNotExist:
+            logger.error("User not found")
+            raise Http404
+
+
+    def get(self, request, pk1, pk2, pk3, pk4, format=None):
+        scoresheets = self.get_scoresheets(request.user.id, pk3, pk4)
+        #scoresheets = self.get_scoresheets(1, pk3, pk4)
+        serializer = UserSkillPermissionReadSerializer(scoresheets, many=True)
+        for scorecategory in serializer.data:
+            codigo = scorecategory['scorecategory']['id']
+            sse = ScoreSheetElement.objects.get(id=codigo)
+
+            min_score = sse.min_score
+            max_score = sse.max_score
+            scoremetric = ScoreMetricWriteSerializer(sse.scoremetric)
+
+            scorecategory['min_score'] = min_score
+            scorecategory['max_score'] = max_score
+            scorecategory['value'] = 0
+            scorecategory['scoremetric']=scoremetric.data
+            
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class TabsViewSet(APIView):
+
+    def get_userscoresheetelements(self, pk1):
+        try:
+            return UserScoreSheetElement.objects.filter(registration__id=pk1)
+        except UserScoreSheetElement.DoesNotExist:
+            logger.error("Registration not found")
 
     def get_registrations(self, pk1, pk2):
         try:
@@ -124,14 +161,26 @@ class TabsViewSet(APIView):
     
     def get(self, request, pk1, pk2, format=None):
         registrations = self.get_registrations(pk1, pk2)
-        serializer = RegistrationReadSerializer(registrations, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer1 = RegistrationReadSerializer(registrations, many=True)
+        
+        for data in serializer1.data:
+            reg = data['id']
+            
+            userscoresheetelements = self.get_userscoresheetelements(reg)
+            serializer2 = UserScoreSheetElementWriteSerializer(userscoresheetelements, many=True)
 
+            points = 0
+            for metric in serializer2.data:
+                points = points + float(metric['value'])
+            data['points'] = points
+        return Response(serializer1.data, status=status.HTTP_200_OK)
+
+#done
 class DashboardViewSet(APIView):
 
     def get_registrations(self, pk1):
         try:
-            return Registration.objects.filter(championship__id=pk1)
+            return Registration.objects.filter(championshipscoresheet_championship__id=pk1)
         except Registration.DoesNotExist:
             logger.error("Championship not found")
             raise Http404

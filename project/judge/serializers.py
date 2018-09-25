@@ -22,12 +22,12 @@ from .models import (
     ScoreSheet,
     UserSkillPermission,
     ScoreSheetType,
-    Group,
     DivisionGroup,
     Status,
     LocationType,
     Location,
-    ScoreSheetElement
+    ScoreSheetElement,
+    ChampionshipScoreSheet
 )
 
 #Los write serializers
@@ -69,14 +69,6 @@ class CategoryWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('id', 'name')
-        required_fields = ('name')
-
-#done
-class GroupWriteSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Group
         fields = ('id', 'name')
         required_fields = ('name')
 
@@ -133,8 +125,8 @@ class DivisionGroupWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DivisionGroup
-        fields = ('id', 'gender', 'level', 'division', 'category', 'group', 'institution')
-        required_fields = ('gender', 'level', 'division', 'caegory', 'group', 'institution')
+        fields = ('id', 'gender', 'level', 'division', 'category', 'institution')
+        required_fields = ('gender', 'level', 'division', 'caegory', 'institution')
 
 #done
 class ScoreCategoryWriteSerializer(serializers.ModelSerializer):
@@ -181,16 +173,24 @@ class UserSkillPermissionWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserSkillPermission
-        fields = ('id', 'user', 'scorecategory')
-        required_fields = ('user', 'scorecategory')
+        fields = ('id', 'user', 'scorecategory', 'round', 'scoresheet')
+        required_fields = ('user', 'scorecategory', 'round', 'scoresheet')
+
+#done
+class ChampionshipScoreSheetWriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ChampionshipScoreSheet
+        fields = ('id', 'championship', 'scoresheet')
+        required_fields = ('championship', 'scoresheet')
 
 #done
 class ChampionshipWriteSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Championship
-        fields = ('id', 'name', 'date', 'address', 'scoresheet')
-        required_fields = ('name', 'date', 'address', 'scoresheet')
+        fields = ('id', 'name', 'date', 'address')
+        required_fields = ('name', 'date', 'address')
 
 
 #done
@@ -198,23 +198,33 @@ class RegistrationWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Registration
-        fields = ('id', 'date', 'total_men', 'total_women', 'coach', 'team', 'championship', 'divisiongroup', 'status', 'order')
-        required_fields = ('date', 'total_men', 'total_women', 'coach', 'team', 'championship', 'divisiongroup', 'status', 'order')
+        fields = ('id', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'status', 'order')
+        required_fields = ('date', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'status', 'order')
+        extra_kwargs = {
+            'date': {'write_only': True}
+        }
 
 #done
 class UserScoreSheetElementWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserScoreSheetElement
-        fields = ('id', 'score', 'completed', 'registration', 'scoresheetelement', 'user', 'round')
-        required_fields = ('score', 'completed', 'registration', 'scoresheetelement', 'user', 'round')
+        fields = ('id', 'value', 'registration', 'scoresheetelement', 'user', 'round')
+        required_fields = ('value', 'registration', 'scoresheetelement', 'user', 'round')
 
 #Los read serializers
+
+class ScoreCategoryReadSerializer(ScoreCategoryWriteSerializer):
+    parentscorecategory = ParentScoreCategoryWriteSerializer(read_only=True)
+
+class UserSkillPermissionReadSerializer(UserSkillPermissionWriteSerializer):
+    scorecategory = ScoreCategoryReadSerializer(read_only=True)
+    round = RoundWriteSerializer(read_only=True)
 
 class ScoreSheetReadSerializer(ScoreSheetWriteSerializer):
     scoresheettype = ScoreSheetTypeWriteSerializer(read_only=True)
 
-class ChampionshipReadSerializer(ChampionshipWriteSerializer):
+class ChampionshipScoreSheetReadSerializer(ChampionshipScoreSheetWriteSerializer):
     scoresheet = ScoreSheetReadSerializer(read_only=True)
 
 class LocationReadSerializer(LocationWriteSerializer):
@@ -228,10 +238,9 @@ class DivisionGroupReadSerializer(DivisionGroupWriteSerializer):
     level = LevelWriteSerializer(read_only=True)
     division = DivisionWriteSerializer(read_only=True)
     category = CategoryWriteSerializer(read_only=True)
-    group = GroupWriteSerializer(read_only=True)
 
 class RegistrationReadSerializer(RegistrationWriteSerializer):
     team = TeamReadSerializer(read_only=True)
-    championship = ChampionshipReadSerializer(read_only=True)
+    championshipscoresheet = ChampionshipScoreSheetReadSerializer(read_only=True)
     divisiongroup = DivisionGroupReadSerializer(read_only=True)
     status = StatusWriteSerializer(read_only=True)

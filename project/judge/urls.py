@@ -19,7 +19,6 @@ router.register(r'gender', GenderViewSet)
 router.register(r'level', LevelViewSet)
 router.register(r'division', DivisionViewSet)
 router.register(r'category', CategoryViewSet)
-router.register(r'group', GroupViewSet)
 router.register(r'round', RoundViewSet)
 router.register(r'score-sheet-type', ScoreSheetTypeViewSet)
 router.register(r'score-metric', ScoreMetricViewSet)
@@ -36,6 +35,7 @@ router.register(r'user-skill-permission', UserSkillPermissionViewSet)
 router.register(r'championship', ChampionshipViewSet)
 router.register(r'registration', RegistrationViewSet)
 router.register(r'user-score-sheet-element', UserScoreSheetElementViewSet)
+router.register(r'championship-score-sheet', ChampionshipScoreSheetViewSet)
 
 
 
@@ -43,4 +43,5 @@ urlpatterns = [
     url(r'', include(router.urls)),
     url(r'^championships/(?P<pk1>[0-9]+)/divisions$', DashboardViewSet.as_view()),
     url(r'^championships/(?P<pk1>[0-9]+)/divisions/(?P<pk2>[0-9]+)/registrations$', TabsViewSet.as_view()),
+    url(r'^championships/(?P<pk1>[0-9]+)/divisions/(?P<pk2>[0-9]+)/registrations/(?P<pk3>[0-9]+)/rounds/(?P<pk4>[0-9]+)/scoresheets$', ScoreSheetUserViewSet.as_view()),
 ]
