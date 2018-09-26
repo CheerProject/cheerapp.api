@@ -7,6 +7,7 @@ from .models import (
     ParentScoreCategory,
     ScoreMetric,
     Gender,
+    Round,
     Level,
     Division,
     Category,
@@ -22,101 +23,126 @@ from .models import (
     ScoreSheetElement,
     UserScoreSheetElement,
     UserSkillPermission,
+    ChampionshipScoreSheet,
+    RegistrationRound
 )
 
 # Admin models
 
+#done
 class InstitutionAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     list_display_links = ('name',)
 
-class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'order')
-    list_display_links = ('order',)
-
+#done
 class ScoreSheetTypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     list_display_links = ('name',)
 
+#done
 class ParentScoreCategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     list_display_links = ('name',)
 
+#done
 class ScoreMetricAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     list_display_links = ('name',)
 
+#done
 class GenderAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     list_display_links = ('name',)
 
+#done
 class LevelAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     list_display_links = ('name',)
 
+#done
 class DivisionAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     list_display_links = ('name',)
 
+#done
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'description')
     list_display_links = ('name', 'description')
 
-class GroupAdmin(admin.ModelAdmin):
+#done
+class RoundAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     list_display_links = ('name',)
 
+#done
 class DivisionGroupAdmin(admin.ModelAdmin):
     list_display = ('id', 'gender', 'level', 'division', 'category','institution')
     list_display_links = ('gender', 'level', 'division', 'category', 'institution',)
 
+#done
 class TeamAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'location')
     list_display_links = ('name', 'location',)
 
+#done
 class StatusAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     list_display_links = ('name',)
 
+#done
 class LocationTypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     list_display_links = ('name',)
 
+#done
 class LocationAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'locationtype', 'location')
     list_display_links = ('name', 'locationtype', 'location',)
 
+#done
 class ScoreSheetAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'scoresheettype')
     list_display_links = ('name', 'scoresheettype',)
 
+#done
 class ScoreCategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'parentscorecategory')
     list_display_links = ('name', 'parentscorecategory',)
 
+#done
 class ChampionshipAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'date', 'address')
     list_display_links = ('name', 'date', 'address')
 
+#done
 class RegistrationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'date', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'status', 'order')
-    list_display_links = ('date', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'status', 'order',)
+    list_display = ('id', 'date', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'order')
+    list_display_links = ('date', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'order',)
 
+#done
 class ChampionshipScoreSheetAdmin(admin.ModelAdmin):
     list_display = ('id', 'championship', 'scoresheet')
     list_display_links = ('championship', 'scoresheet')
 
+#done
 class ScoreSheetElementAdmin(admin.ModelAdmin):
     list_display = ('id', 'min_score', 'max_score', 'scoremetric', 'scorecategory', 'scoresheet')
     list_display_links = ('min_score', 'max_score', 'scoremetric', 'scorecategory', 'scoresheet',)
 
+#done
 class UserScoreSheetElementAdmin(admin.ModelAdmin):
-    list_display = ('id', 'value', 'round', 'registration', 'user', 'scoresheetelement')
-    list_display_links = ('value', 'round', 'registration', 'user', 'scoresheetelement',)
+    list_display = ('id', 'value', 'registrationround', 'user', 'scoresheetelement')
+    list_display_links = ('value', 'registrationround', 'user', 'scoresheetelement',)
 
+#done
 class UserSkillPermissionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'scorecategory', 'round', 'scoresheet')
-    list_display_links = ('user', 'scorecategory', 'round', 'scoresheet')
+    list_display = ('id', 'user', 'registrationround', 'scoresheetelement')
+    list_display_links = ('user', 'registrationround', 'scoresheetelement')
+
+#done
+class RegistrationRoundAdmin(admin.ModelAdmin):
+    list_display = ('id', 'round', 'status', 'registration')
+    list_display_links = ('round', 'status', 'registration')
 
 
 # register your models here.
@@ -140,3 +166,6 @@ admin.site.register(Registration, RegistrationAdmin)
 admin.site.register(ScoreSheetElement, ScoreSheetElementAdmin)
 admin.site.register(UserScoreSheetElement, UserScoreSheetElementAdmin)
 admin.site.register(UserSkillPermission, UserSkillPermissionAdmin)
+admin.site.register(ChampionshipScoreSheet, ChampionshipScoreSheetAdmin)
+admin.site.register(RegistrationRound, RegistrationRoundAdmin)
+admin.site.register(Round, RoundAdmin)

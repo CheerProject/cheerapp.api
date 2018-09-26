@@ -27,7 +27,8 @@ from .models import (
     LocationType,
     Location,
     ScoreSheetElement,
-    ChampionshipScoreSheet
+    ChampionshipScoreSheet,
+    RegistrationRound
 )
 
 #Los write serializers
@@ -173,8 +174,8 @@ class UserSkillPermissionWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserSkillPermission
-        fields = ('id', 'user', 'scorecategory', 'round', 'scoresheet')
-        required_fields = ('user', 'scorecategory', 'round', 'scoresheet')
+        fields = ('id', 'user', 'scoresheetelement', 'registrationround')
+        required_fields = ('user', 'scoresheetelement', 'registrationround')
 
 #done
 class ChampionshipScoreSheetWriteSerializer(serializers.ModelSerializer):
@@ -192,14 +193,13 @@ class ChampionshipWriteSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'date', 'address')
         required_fields = ('name', 'date', 'address')
 
-
 #done
 class RegistrationWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Registration
-        fields = ('id', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'status', 'order')
-        required_fields = ('date', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'status', 'order')
+        fields = ('id', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'order')
+        required_fields = ('date', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'order')
         extra_kwargs = {
             'date': {'write_only': True}
         }
@@ -209,17 +209,22 @@ class UserScoreSheetElementWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserScoreSheetElement
-        fields = ('id', 'value', 'registration', 'scoresheetelement', 'user', 'round')
-        required_fields = ('value', 'registration', 'scoresheetelement', 'user', 'round')
+        #fields = ('id', 'value', 'registrationround', 'scoresheetelement', 'user')
+        fields = ('id', 'value', 'registrationround', 'scoresheetelement', 'user')
+        required_fields = ('value', 'registrationround', 'scoresheetelement', 'user')
+
+#done
+class RegistrationRoundWriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RegistrationRound
+        fields = ('id', 'registration', 'round', 'status')
+        required_fields = ('registration', 'round', 'status')
 
 #Los read serializers
 
 class ScoreCategoryReadSerializer(ScoreCategoryWriteSerializer):
     parentscorecategory = ParentScoreCategoryWriteSerializer(read_only=True)
-
-class UserSkillPermissionReadSerializer(UserSkillPermissionWriteSerializer):
-    scorecategory = ScoreCategoryReadSerializer(read_only=True)
-    round = RoundWriteSerializer(read_only=True)
 
 class ScoreSheetReadSerializer(ScoreSheetWriteSerializer):
     scoresheettype = ScoreSheetTypeWriteSerializer(read_only=True)
@@ -238,9 +243,27 @@ class DivisionGroupReadSerializer(DivisionGroupWriteSerializer):
     level = LevelWriteSerializer(read_only=True)
     division = DivisionWriteSerializer(read_only=True)
     category = CategoryWriteSerializer(read_only=True)
+    institution = InstitutionWriteSerializer(read_only=True)
 
 class RegistrationReadSerializer(RegistrationWriteSerializer):
     team = TeamReadSerializer(read_only=True)
     championshipscoresheet = ChampionshipScoreSheetReadSerializer(read_only=True)
     divisiongroup = DivisionGroupReadSerializer(read_only=True)
+
+class RegistrationRoundReadSerializer(RegistrationRoundWriteSerializer):
+    registration = RegistrationReadSerializer(read_only=True)
+    round = RoundWriteSerializer(read_only=True)
     status = StatusWriteSerializer(read_only=True)
+
+class ScoreSheetElementReadSerializer(ScoreSheetElementWriteSerializer):
+    scoremetric = ScoreMetricWriteSerializer(read_only=True)
+    scorecategory = ScoreCategoryReadSerializer(read_only=True)
+    scoresheet = ScoreSheetReadSerializer(read_only=True)
+
+class UserScoreSheetElementReadSerializer(UserScoreSheetElementWriteSerializer):
+    scoresheetelement = ScoreSheetElementReadSerializer(read_only=True)
+    registrationround = RegistrationRoundReadSerializer(read_only=True)
+
+class UserSkillPermissionReadSerializer(UserSkillPermissionWriteSerializer):
+    scoresheetelement = ScoreSheetElementReadSerializer(read_only=True)
+    registrationround = RegistrationRoundReadSerializer(read_only=True)

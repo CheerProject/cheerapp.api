@@ -4,6 +4,7 @@ from django.utils import timezone
 
 # Create your models here.
 
+#done
 class BaseModel(models.Model):
     description = models.CharField(max_length=250, blank=True, null=True)
 
@@ -13,60 +14,70 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+#done
 class Institution(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return '[ {} ]'.format(self.name)
 
+#done
 class ScoreSheetType(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return '[ {} ]'.format(self.name)
 
+#done
 class ParentScoreCategory(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return '[ {} ]'.format(self.name)
 
+#done
 class Round(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return '[ {} ]'.format(self.name)
 
+#done
 class ScoreMetric(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return '[ {} ]'.format(self.name)
 
+#done
 class Gender(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return '[ {} ]'.format(self.name)
 
+#done
 class Level(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return '[ {} ]'.format(self.name)
 
+#done
 class Division(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return '[ {} ]'.format(self.name)
 
+#done
 class Category(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return '[ {} ]'.format(self.name)
 
+#done
 class DivisionGroup(BaseModel):
 
     gender = models.ForeignKey(Gender, related_name='division_groups', on_delete=models.CASCADE)
@@ -81,12 +92,14 @@ class DivisionGroup(BaseModel):
     class Meta:
         unique_together = (('gender', 'level', 'division', 'category', 'institution'),)
 
+#done
 class LocationType(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return '[ {} ]'.format(self.name)
 
+#done
 class Location(BaseModel):
     name = models.CharField(max_length=150)
     
@@ -99,6 +112,7 @@ class Location(BaseModel):
     class Meta:
         unique_together = (('name', 'locationtype'),)
 
+#done
 class Team(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
@@ -110,6 +124,7 @@ class Team(BaseModel):
     class Meta:
         unique_together = (('name', 'location'),)
 
+#done
 class ScoreSheet(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
@@ -118,6 +133,7 @@ class ScoreSheet(BaseModel):
     def __str__(self):
         return '[ {} ] - [ {} ]'.format(self.name, self.scoresheettype)
 
+#done
 class ScoreCategory(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
@@ -126,12 +142,14 @@ class ScoreCategory(BaseModel):
     def __str__(self):
         return '[ {} ] - [ {} ]'.format(self.name, self.parentscorecategory)
 
+#done
 class Status(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return '[ {} ]'.format(self.name)
 
+#done
 class Championship(BaseModel):
     name = models.CharField(max_length=150)
     date = models.DateField(default=timezone.now)
@@ -142,7 +160,8 @@ class Championship(BaseModel):
     
     class Meta:
         unique_together = (('name', 'date'),)
-    
+
+#done    
 class ChampionshipScoreSheet(BaseModel):
 
     championship = models.ForeignKey(Championship, related_name='championship_scoresheet', on_delete=models.CASCADE)
@@ -154,6 +173,7 @@ class ChampionshipScoreSheet(BaseModel):
     class Meta:
         unique_together = (('championship', 'scoresheet'),)
 
+#done
 class Registration(BaseModel):
     date = models.DateTimeField(auto_now_add=True)
     total_men = models.IntegerField()
@@ -164,14 +184,14 @@ class Registration(BaseModel):
     team = models.ForeignKey(Team, related_name='registrations', on_delete=models.CASCADE)
     championshipscoresheet = models.ForeignKey(ChampionshipScoreSheet, related_name='registrations', on_delete=models.CASCADE)
     divisiongroup = models.ForeignKey(DivisionGroup, related_name='registrations', on_delete=models.CASCADE)
-    status = models.ForeignKey(Status, related_name='registrations', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]- [ {} ] - [ {} ]'.format(str(self.date), self.total_men, self.total_women, self.coach, self.team, self.championshipscoresheet, self.divisiongroup, self.status, self.order)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]- [ {} ]'.format(str(self.date), self.total_men, self.total_women, self.coach, self.team, self.championshipscoresheet, self.divisiongroup, self.order)
     
     class Meta:
         unique_together = (('team', 'championshipscoresheet', 'divisiongroup'),)
 
+#done
 class ScoreSheetElement(BaseModel):
     min_score = models.DecimalField(max_digits=10, decimal_places=3)
     max_score = models.DecimalField(max_digits=10, decimal_places=3)
@@ -186,29 +206,42 @@ class ScoreSheetElement(BaseModel):
     class Meta:
         unique_together = (('scoremetric', 'scorecategory', 'scoresheet'),)
 
+#done
+class RegistrationRound(BaseModel):
+
+    registration = models.ForeignKey(Registration, related_name='registration_rounds', on_delete=models.CASCADE)
+    status = models.ForeignKey(Status, related_name='registration_rounds', on_delete=models.CASCADE)
+    round = models.ForeignKey(Round, related_name='registration_rounds', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '[ {} ] - [ {} ] - [ {} ]'.format(self.registration, self.status, self.round)
+    
+    class Meta:
+        unique_together = (('registration', 'status', 'round'),)
+
+#done
 class UserScoreSheetElement(BaseModel):
     value = models.CharField(max_length=750)
 
-    registration = models.ForeignKey(Registration, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
+    registrationround = models.ForeignKey(RegistrationRound, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
     scoresheetelement = models.ForeignKey(ScoreSheetElement, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', related_name='user_score_sheet_elements', on_delete=models.CASCADE)
-    round = models.ForeignKey(Round, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
     
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.value, self.round, self.registration, self.user, self.scoresheetelement)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.value, self.registrationround, self.user, self.scoresheetelement)
     
     class Meta:
-        unique_together = (('registration', 'scoresheetelement', 'user', 'round'),)
+        unique_together = (('registrationround', 'scoresheetelement', 'user'),)
 
+#done
 class UserSkillPermission(BaseModel):
 
-    round = models.ForeignKey(Round, related_name='user_skill_permissions', on_delete=models.CASCADE)
+    registrationround = models.ForeignKey(RegistrationRound, related_name='user_skill_permissions', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', related_name='user_skill_permissions', on_delete=models.CASCADE)
-    scorecategory = models.ForeignKey(ScoreCategory, related_name='user_skill_permissions', on_delete=models.CASCADE)
-    scoresheet = models.ForeignKey(ScoreSheet, related_name='user_skill_permissions', on_delete=models.CASCADE)
+    scoresheetelement = models.ForeignKey(ScoreSheetElement, related_name='user_skill_permissions', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.round, self.user, self.scorecategory, self.scoresheet)
+        return '[ {} ] - [ {} ] - [ {} ]'.format(self.registrationround, self.user, self.scoresheetelement)
     
     class Meta:
-        unique_together = (('round', 'user', 'scorecategory', 'scoresheet'),)
+        unique_together = (('registrationround', 'user', 'scoresheetelement'),)
