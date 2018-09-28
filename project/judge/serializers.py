@@ -210,8 +210,9 @@ class UserScoreSheetElementWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserScoreSheetElement
         #fields = ('id', 'value', 'registrationround', 'scoresheetelement', 'user')
-        fields = ('id', 'value', 'registrationround', 'scoresheetelement', 'user')
-        required_fields = ('value', 'registrationround', 'scoresheetelement', 'user')
+        fields = ('id', 'value', 'registrationround', 'scoresheetelement')
+        #required_fields = ('value', 'registrationround', 'scoresheetelement', 'user')
+        required_fields = ('value', 'scoresheetelement')
 
 #done
 class RegistrationRoundWriteSerializer(serializers.ModelSerializer):
