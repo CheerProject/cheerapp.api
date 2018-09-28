@@ -36,13 +36,19 @@ router.register(r'championship', ChampionshipViewSet)
 router.register(r'registration', RegistrationViewSet)
 router.register(r'user-score-sheet-element', UserScoreSheetElementViewSet)
 router.register(r'championship-score-sheet', ChampionshipScoreSheetViewSet)
-router.register(r'registration_round', RegistrationRoundViewSet)
+router.register(r'registration-round', RegistrationRoundViewSet)
 
 
 
 urlpatterns = [
     url(r'', include(router.urls)),
-    url(r'^championships/(?P<pk1>[0-9]+)/divisions$', DashboardViewSet.as_view()),
-    url(r'^championships/(?P<pk1>[0-9]+)/divisions/(?P<pk2>[0-9]+)/registrations$', TabsViewSet.as_view()),
-    url(r'^championships/(?P<pk1>[0-9]+)/divisions/(?P<pk2>[0-9]+)/registrations/(?P<pk3>[0-9]+)/scoresheets$', ScoreSheetUserViewSet.as_view()),
+    url(r'^championships/(?P<pk_championship>[0-9]+)/divisions$', DashboardViewSet.as_view()),
+    url(r'^championships/(?P<pk_championship>[0-9]+)/divisions/(?P<pk_division>[0-9]+)/registrations$', TabsReadViewSet.as_view()),
+    url(r'^championships/(?P<pk_championship>[0-9]+)/divisions/(?P<pk_division>[0-9]+)/registrations/(?P<pk_registrationround>[0-9]+)$', TabsWriteViewSet.as_view()),
+    url(r'^championships/(?P<pk_championship>[0-9]+)/divisions/(?P<pk_division>[0-9]+)/registrations/(?P<pk_registrationround>[0-9]+)/scoresheet$', ScoreSheetUserViewSet.as_view()),
+    
+    
+    
+    
+    
 ]
