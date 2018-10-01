@@ -207,41 +207,41 @@ class ScoreSheetElement(BaseModel):
         unique_together = (('scoremetric', 'scorecategory', 'scoresheet'),)
 
 #done
-class RegistrationRound(BaseModel):
+class UserRegistrationRound(BaseModel):
+    is_active = models.BooleanField(default=True)
 
     registration = models.ForeignKey(Registration, related_name='registration_rounds', on_delete=models.CASCADE)
     status = models.ForeignKey(Status, related_name='registration_rounds', on_delete=models.CASCADE)
     round = models.ForeignKey(Round, related_name='registration_rounds', on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', related_name='registration_rounds', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ]'.format(self.registration, self.status, self.round)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.registration, self.status, self.round, self.user, self.is_active)
     
     class Meta:
-        unique_together = (('registration', 'status', 'round'),)
+        unique_together = (('registration', 'user', 'round'),)
 
 #done
 class UserScoreSheetElement(BaseModel):
     value = models.CharField(max_length=750)
 
-    registrationround = models.ForeignKey(RegistrationRound, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
+    userregistrationround = models.ForeignKey(UserRegistrationRound, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
     scoresheetelement = models.ForeignKey(ScoreSheetElement, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
-    user = models.ForeignKey('auth.User', related_name='user_score_sheet_elements', on_delete=models.CASCADE)
-    
+        
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.value, self.registrationround, self.user, self.scoresheetelement)
+        return '[ {} ] - [ {} ] - [ {} ]'.format(self.value, self.userregistrationround, self.scoresheetelement)
     
     class Meta:
-        unique_together = (('registrationround', 'scoresheetelement', 'user'),)
+        unique_together = (('userregistrationround', 'scoresheetelement'),)
 
 #done
 class UserSkillPermission(BaseModel):
 
-    registrationround = models.ForeignKey(RegistrationRound, related_name='user_skill_permissions', on_delete=models.CASCADE)
-    user = models.ForeignKey('auth.User', related_name='user_skill_permissions', on_delete=models.CASCADE)
+    userregistrationround = models.ForeignKey(UserRegistrationRound, related_name='user_skill_permissions', on_delete=models.CASCADE)
     scoresheetelement = models.ForeignKey(ScoreSheetElement, related_name='user_skill_permissions', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ]'.format(self.registrationround, self.user, self.scoresheetelement)
+        return '[ {} ] - [ {} ]'.format(self.userregistrationround, self.scoresheetelement)
     
     class Meta:
-        unique_together = (('registrationround', 'user', 'scoresheetelement'),)
+        unique_together = (('userregistrationround', 'scoresheetelement'),)

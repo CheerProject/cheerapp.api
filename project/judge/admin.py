@@ -24,7 +24,7 @@ from .models import (
     UserScoreSheetElement,
     UserSkillPermission,
     ChampionshipScoreSheet,
-    RegistrationRound
+    UserRegistrationRound
 )
 
 # Admin models
@@ -131,18 +131,18 @@ class ScoreSheetElementAdmin(admin.ModelAdmin):
 
 #done
 class UserScoreSheetElementAdmin(admin.ModelAdmin):
-    list_display = ('id', 'value', 'registrationround', 'user', 'scoresheetelement')
-    list_display_links = ('value', 'registrationround', 'user', 'scoresheetelement',)
+    list_display = ('id', 'value', 'userregistrationround', 'scoresheetelement')
+    list_display_links = ('value', 'userregistrationround', 'scoresheetelement',)
 
 #done
 class UserSkillPermissionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'registrationround', 'scoresheetelement')
-    list_display_links = ('user', 'registrationround', 'scoresheetelement')
+    list_display = ('id', 'userregistrationround', 'scoresheetelement')
+    list_display_links = ('userregistrationround', 'scoresheetelement')
 
 #done
-class RegistrationRoundAdmin(admin.ModelAdmin):
-    list_display = ('id', 'round', 'status', 'registration')
-    list_display_links = ('round', 'status', 'registration')
+class UserRegistrationRoundAdmin(admin.ModelAdmin):
+    list_display = ('id', 'round', 'status', 'registration', 'user', 'is_active')
+    list_display_links = ('round', 'status', 'registration', 'user', 'is_active')
 
 
 # register your models here.
@@ -167,5 +167,5 @@ admin.site.register(ScoreSheetElement, ScoreSheetElementAdmin)
 admin.site.register(UserScoreSheetElement, UserScoreSheetElementAdmin)
 admin.site.register(UserSkillPermission, UserSkillPermissionAdmin)
 admin.site.register(ChampionshipScoreSheet, ChampionshipScoreSheetAdmin)
-admin.site.register(RegistrationRound, RegistrationRoundAdmin)
+admin.site.register(UserRegistrationRound, UserRegistrationRoundAdmin)
 admin.site.register(Round, RoundAdmin)

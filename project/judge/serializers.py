@@ -28,7 +28,7 @@ from .models import (
     Location,
     ScoreSheetElement,
     ChampionshipScoreSheet,
-    RegistrationRound
+    UserRegistrationRound
 )
 
 #Los write serializers
@@ -174,8 +174,10 @@ class UserSkillPermissionWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserSkillPermission
-        fields = ('id', 'user', 'scoresheetelement', 'registrationround')
-        required_fields = ('user', 'scoresheetelement', 'registrationround')
+        #fields = ('id', 'scoresheetelement', 'userregistrationround')
+        fields = ('id', 'scoresheetelement')
+        #required_fields = ('scoresheetelement', 'userregistrationround')
+        required_fields = ('scoresheetelement')
 
 #done
 class ChampionshipScoreSheetWriteSerializer(serializers.ModelSerializer):
@@ -209,18 +211,18 @@ class UserScoreSheetElementWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserScoreSheetElement
-        #fields = ('id', 'value', 'registrationround', 'scoresheetelement', 'user')
-        fields = ('id', 'value', 'registrationround', 'scoresheetelement')
-        #required_fields = ('value', 'registrationround', 'scoresheetelement', 'user')
+        #fields = ('id', 'value', 'userregistrationround', 'scoresheetelement')
+        fields = ('id', 'value', 'scoresheetelement')
+        #required_fields = ('value', 'userregistrationround', 'scoresheetelement')
         required_fields = ('value', 'scoresheetelement')
 
 #done
-class RegistrationRoundWriteSerializer(serializers.ModelSerializer):
+class UserRegistrationRoundWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = RegistrationRound
-        fields = ('id', 'registration', 'round', 'status')
-        required_fields = ('registration', 'round', 'status')
+        model = UserRegistrationRound
+        fields = ('id', 'registration', 'round', 'status', 'user', 'is_active')
+        required_fields = ('registration', 'round', 'status', 'user', 'is_active')
 
 #Los read serializers
 
@@ -251,7 +253,7 @@ class RegistrationReadSerializer(RegistrationWriteSerializer):
     championshipscoresheet = ChampionshipScoreSheetReadSerializer(read_only=True)
     divisiongroup = DivisionGroupReadSerializer(read_only=True)
 
-class RegistrationRoundReadSerializer(RegistrationRoundWriteSerializer):
+class UserRegistrationRoundReadSerializer(UserRegistrationRoundWriteSerializer):
     registration = RegistrationReadSerializer(read_only=True)
     round = RoundWriteSerializer(read_only=True)
     status = StatusWriteSerializer(read_only=True)
@@ -263,8 +265,8 @@ class ScoreSheetElementReadSerializer(ScoreSheetElementWriteSerializer):
 
 class UserScoreSheetElementReadSerializer(UserScoreSheetElementWriteSerializer):
     scoresheetelement = ScoreSheetElementReadSerializer(read_only=True)
-    registrationround = RegistrationRoundReadSerializer(read_only=True)
+    #userregistrationround = UserRegistrationRoundReadSerializer(read_only=True)
 
 class UserSkillPermissionReadSerializer(UserSkillPermissionWriteSerializer):
     scoresheetelement = ScoreSheetElementReadSerializer(read_only=True)
-    registrationround = RegistrationRoundReadSerializer(read_only=True)
+    #userregistrationround = UserRegistrationRoundReadSerializer(read_only=True)
