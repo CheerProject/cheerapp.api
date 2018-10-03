@@ -11,7 +11,7 @@ from .models import (
     Level,
     Division,
     Category,
-    DivisionGroup,
+    Group,
     Team,
     Status,
     LocationType,
@@ -66,8 +66,8 @@ class DivisionAdmin(admin.ModelAdmin):
 
 #done
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'description')
-    list_display_links = ('name', 'description')
+    list_display = ('id', 'name')
+    list_display_links = ('name',)
 
 #done
 class RoundAdmin(admin.ModelAdmin):
@@ -75,9 +75,9 @@ class RoundAdmin(admin.ModelAdmin):
     list_display_links = ('name',)
 
 #done
-class DivisionGroupAdmin(admin.ModelAdmin):
-    list_display = ('id', 'gender', 'level', 'division', 'category','institution')
-    list_display_links = ('gender', 'level', 'division', 'category', 'institution',)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+    list_display_links = ('name',)
 
 #done
 class TeamAdmin(admin.ModelAdmin):
@@ -116,8 +116,8 @@ class ChampionshipAdmin(admin.ModelAdmin):
 
 #done
 class RegistrationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'date', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'order')
-    list_display_links = ('date', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'order',)
+    list_display = ('id', 'date', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'group', 'order', 'gender', 'level', 'division', 'category','institution')
+    list_display_links = ('date', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'group', 'order', 'gender', 'level', 'division', 'category', 'institution',)
 
 #done
 class ChampionshipScoreSheetAdmin(admin.ModelAdmin):
@@ -154,7 +154,6 @@ admin.site.register(Gender, GenderAdmin)
 admin.site.register(Level, LevelAdmin)
 admin.site.register(Division, DivisionAdmin)
 admin.site.register(Category, CategoryAdmin)
-admin.site.register(DivisionGroup, DivisionGroupAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Status, StatusAdmin)
 admin.site.register(LocationType, LocationTypeAdmin)
@@ -169,3 +168,4 @@ admin.site.register(UserSkillPermission, UserSkillPermissionAdmin)
 admin.site.register(ChampionshipScoreSheet, ChampionshipScoreSheetAdmin)
 admin.site.register(UserRegistrationRound, UserRegistrationRoundAdmin)
 admin.site.register(Round, RoundAdmin)
+admin.site.register(Group, GroupAdmin)

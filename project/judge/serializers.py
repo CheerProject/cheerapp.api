@@ -22,7 +22,7 @@ from .models import (
     ScoreSheet,
     UserSkillPermission,
     ScoreSheetType,
-    DivisionGroup,
+    Group,
     Status,
     LocationType,
     Location,
@@ -122,12 +122,12 @@ class ParentScoreCategoryWriteSerializer(serializers.ModelSerializer):
         required_fields = ('name')
 
 #done
-class DivisionGroupWriteSerializer(serializers.ModelSerializer):
+class GroupWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = DivisionGroup
-        fields = ('id', 'gender', 'level', 'division', 'category', 'institution')
-        required_fields = ('gender', 'level', 'division', 'caegory', 'institution')
+        model = Group
+        fields = ('id', 'name')
+        required_fields = ('name')
 
 #done
 class ScoreCategoryWriteSerializer(serializers.ModelSerializer):
@@ -200,8 +200,8 @@ class RegistrationWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Registration
-        fields = ('id', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'order')
-        required_fields = ('date', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'divisiongroup', 'order')
+        fields = ('id', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'group', 'order', 'gender', 'level', 'division', 'category', 'institution')
+        required_fields = ('date', 'total_men', 'total_women', 'coach', 'team', 'championshipscoresheet', 'group', 'order', 'gender', 'level', 'division', 'caegory', 'institution')
         extra_kwargs = {
             'date': {'write_only': True}
         }
@@ -241,17 +241,15 @@ class LocationReadSerializer(LocationWriteSerializer):
 class TeamReadSerializer(TeamWriteSerializer):
     location = LocationReadSerializer(read_only=True)
 
-class DivisionGroupReadSerializer(DivisionGroupWriteSerializer):
+class RegistrationReadSerializer(RegistrationWriteSerializer):
+    team = TeamReadSerializer(read_only=True)
+    championshipscoresheet = ChampionshipScoreSheetReadSerializer(read_only=True)
+    group = GroupWriteSerializer(read_only=True)
     gender = GenderWriteSerializer(read_only=True)
     level = LevelWriteSerializer(read_only=True)
     division = DivisionWriteSerializer(read_only=True)
     category = CategoryWriteSerializer(read_only=True)
     institution = InstitutionWriteSerializer(read_only=True)
-
-class RegistrationReadSerializer(RegistrationWriteSerializer):
-    team = TeamReadSerializer(read_only=True)
-    championshipscoresheet = ChampionshipScoreSheetReadSerializer(read_only=True)
-    divisiongroup = DivisionGroupReadSerializer(read_only=True)
 
 class UserRegistrationRoundReadSerializer(UserRegistrationRoundWriteSerializer):
     registration = RegistrationReadSerializer(read_only=True)

@@ -22,6 +22,13 @@ class Institution(BaseModel):
         return '[ {} ]'.format(self.name)
 
 #done
+class Group(BaseModel):
+    name = models.CharField(max_length=150, unique=True)
+
+    def __str__(self):
+        return '[ {} ]'.format(self.name)
+
+#done
 class ScoreSheetType(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
@@ -76,21 +83,6 @@ class Category(BaseModel):
 
     def __str__(self):
         return '[ {} ]'.format(self.name)
-
-#done
-class DivisionGroup(BaseModel):
-
-    gender = models.ForeignKey(Gender, related_name='division_groups', on_delete=models.CASCADE)
-    level = models.ForeignKey(Level, related_name='divison_groups', on_delete=models.CASCADE)
-    division = models.ForeignKey(Division, related_name='division_groups', on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, related_name='division_groups', on_delete=models.CASCADE)
-    institution = models.ForeignKey(Institution, related_name='division_group', on_delete=models.CASCADE)    
-
-    def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.gender, self.level, self.division, self.category, self.institution)
-
-    class Meta:
-        unique_together = (('gender', 'level', 'division', 'category', 'institution'),)
 
 #done
 class LocationType(BaseModel):
@@ -183,13 +175,18 @@ class Registration(BaseModel):
     
     team = models.ForeignKey(Team, related_name='registrations', on_delete=models.CASCADE)
     championshipscoresheet = models.ForeignKey(ChampionshipScoreSheet, related_name='registrations', on_delete=models.CASCADE)
-    divisiongroup = models.ForeignKey(DivisionGroup, related_name='registrations', on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, related_name='registrations', on_delete=models.CASCADE)
+    gender = models.ForeignKey(Gender, related_name='registrations', on_delete=models.CASCADE)
+    level = models.ForeignKey(Level, related_name='registrations', on_delete=models.CASCADE)
+    division = models.ForeignKey(Division, related_name='registrations', on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, related_name='registrations', on_delete=models.CASCADE)
+    institution = models.ForeignKey(Institution, related_name='registrations', on_delete=models.CASCADE)    
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]- [ {} ]'.format(str(self.date), self.total_men, self.total_women, self.coach, self.team, self.championshipscoresheet, self.divisiongroup, self.order)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(str(self.date), self.total_men, self.total_women, self.coach, self.team, self.championshipscoresheet, self.order, self.group, self.gender, self.level, self.division, self.category, self.institution)
     
     class Meta:
-        unique_together = (('team', 'championshipscoresheet', 'divisiongroup'),)
+        unique_together = (('team', 'championshipscoresheet', 'gender', 'level', 'division', 'category', 'institution'),)
 
 #done
 class ScoreSheetElement(BaseModel):
