@@ -46,7 +46,7 @@ urlpatterns = [
     url(r'^championships/(?P<pk_championship>[0-9]+)/groups$', DashboardViewSet.as_view()),
     url(r'^championships/(?P<pk_championship>[0-9]+)/groups/(?P<pk_group>[0-9]+)/leaderboard$', LeaderBoardViewSet.as_view()),
     url(r'^championships/(?P<pk_championship>[0-9]+)/groups/(?P<pk_group>[0-9]+)/registrations$', TabsReadViewSet.as_view()),
-    url(r'^championships/(?P<pk_championship>[0-9]+)/divisions/(?P<pk_division>[0-9]+)/registrations/(?P<pk_userregistrationround>[0-9]+)$', TabsWriteViewSet.as_view()),
-    url(r'^championships/(?P<pk_championship>[0-9]+)/divisions/(?P<pk_division>[0-9]+)/registrations/(?P<pk_userregistrationround>[0-9]+)/scoresheet$', ScoreSheetUserViewSet.as_view()),
+    url(r'^championships/(?P<pk_championship>[0-9]+)/groups/(?P<pk_group>[0-9]+)/registrations/(?P<pk_userregistrationround>[0-9]+)$', TabsWriteViewSet.as_view()),
+    url(r'^championships/(?P<pk_championship>[0-9]+)/groups/(?P<pk_group>[0-9]+)/registrations/(?P<pk_userregistrationround>[0-9]+)/scoresheet$', ScoreSheetUserViewSet.as_view()),
     
 ]

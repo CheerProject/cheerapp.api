@@ -291,7 +291,7 @@ class ScoreSheetUserViewSet(APIView):
             logger.error("Calification not found")
             raise Http404
 
-    def put(self, request, pk_championship, pk_division, pk_userregistrationround, format=None):
+    def put(self, request, pk_championship, pk_group, pk_userregistrationround, format=None):
         
         validated = []
         ok_response = []
@@ -317,7 +317,7 @@ class ScoreSheetUserViewSet(APIView):
             return Response(ok_response)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def post(self, request, pk_championship, pk_division, pk_userregistrationround, format=None):
+    def post(self, request, pk_championship, pk_group, pk_userregistrationround, format=None):
         
         estado = 'delayed' if request.query_params.get('pending') else 'checked'
         serializer = UserScoreSheetElementWriteSerializer(data=request.data, many=True)
@@ -345,7 +345,7 @@ class ScoreSheetUserViewSet(APIView):
             logger.error("User not found")
             raise Http404
 
-    def get(self, request, pk_championship, pk_division, pk_userregistrationround, format=None):
+    def get(self, request, pk_championship, pk_group, pk_userregistrationround, format=None):
         
         scoresheet = self.get_scoresheets_user_scoresheet_element(pk_userregistrationround)
         serializer = UserScoreSheetElementReadSerializer(scoresheet, many=True)
@@ -374,9 +374,8 @@ class TabsWriteViewSet(APIView):
         except UserRegistrationRound.DoesNotExist:
             logger.error("UserRegistrationRound not found")
     
-    def put(self, request, pk_championship, pk_division, pk_userregistrationround, format=None):
+    def put(self, request, pk_championship, pk_group, pk_userregistrationround, format=None):
        estado = 'delayed' if request.query_params.get('pending') else 'on time'
-       print(estado)
        userregistrationround = self.get_user_registration_round(pk_userregistrationround)
        userregistrationround.status = self.get_status(estado)
        serializer = UserRegistrationRoundReadSerializer(userregistrationround)
