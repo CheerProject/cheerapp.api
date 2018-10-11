@@ -15,6 +15,8 @@ from rest_framework.renderers import JSONRenderer
 #from .schemas import get_predictor_schema
 from decimal import Decimal
 
+from django.db.models import F
+
 import json
 
 import logging
@@ -177,8 +179,10 @@ class ChampOfChampsViewSet(APIView):
         pk_status = self.get_status("checked").id
         
         registrations = self.get_registrations(pk_championship)
-        serializer_registrations = RegistrationWriteSerializer(registrations, many=True)
-        
+        serializer_registrations = RegistrationReadSerializer(registrations, many=True)
+        serializer_top_registrations = []
+        top = 0
+
         for registration in serializer_registrations.data:
             pk_registration = registration['id']
             
@@ -200,8 +204,19 @@ class ChampOfChampsViewSet(APIView):
                         points = points + float(userscoresheetelement['value'])
             
             registration['points'] = points
-            print(sorted(serializer_registrations.data, key=lambda points: serializer_registrations.data['points']))
-        return Response(serializer_registrations.data, status=status.HTTP_200_OK)
+            
+            if points == top:
+                serializer_top_registrations.append(registration)
+                
+            elif points > top:
+                serializer_top_registrations = []
+                serializer_top_registrations.append(registration)
+                top = points
+
+            
+            
+            
+        return Response(serializer_top_registrations, status=status.HTTP_200_OK)
 
 class LeaderBoardViewSet(APIView):
 
@@ -217,9 +232,9 @@ class LeaderBoardViewSet(APIView):
         except ScoreSheetElement.DoesNotExist:
             logger.error("ScoreSheetElement not found")
     
-    def get_registrations(self, pk_championship, pk_division):
+    def get_registrations(self, pk_championship, pk_group):
         try:
-            return Registration.objects.filter(division_id=pk_division, championshipscoresheet__championship__id=pk_championship)
+            return Registration.objects.filter(group__id=pk_group, championshipscoresheet__championship__id=pk_championship)
         except Registration.DoesNotExist:
             logger.error("Registration not found")
             raise Http404
@@ -230,23 +245,23 @@ class LeaderBoardViewSet(APIView):
         except UserScoreSheetElement.DoesNotExist:
             logger.error("UserScoreSheetElement not found")
 
-    def get_user_registration_rounds(self, pk_registration, pk_status, is_active):
+    def get_user_registration_rounds(self, pk_registration, pk_status, is_active, pk_user):
         try:
-            return UserRegistrationRound.objects.filter(registration__id=pk_registration, status__id=pk_status, is_active=is_active)
+            return UserRegistrationRound.objects.filter(registration__id=pk_registration, status__id=pk_status, is_active=is_active, user__id=pk_user)
         except Registration.DoesNotExist:
             logger.error("Registration not found")
             raise Http404
     
-    def get(self, request, pk_championship, pk_division, format=None):
+    def get(self, request, pk_championship, pk_group, format=None):
         pk_status = self.get_status("checked").id
         
-        registrations = self.get_registrations(pk_championship, pk_division)
-        serializer_registrations = RegistrationWriteSerializer(registrations, many=True)
+        registrations = self.get_registrations(pk_championship, pk_group)
+        serializer_registrations = RegistrationReadSerializer(registrations, many=True)
         
         for registration in serializer_registrations.data:
             pk_registration = registration['id']
-            
-            userregistrationrounds = self.get_user_registration_rounds(pk_registration, pk_status, True)
+
+            userregistrationrounds = self.get_user_registration_rounds(pk_registration, pk_status, True, request.user.id)
             serializer_userregistrationrounds = UserRegistrationRoundWriteSerializer(userregistrationrounds, many=True)
             
             points = 0
@@ -332,12 +347,10 @@ class ScoreSheetUserViewSet(APIView):
 
     def get(self, request, pk_championship, pk_division, pk_userregistrationround, format=None):
         
-        #scoresheet = self.get_scoresheets_userscoresheetelement(pk_userregistrationround)
         scoresheet = self.get_scoresheets_user_scoresheet_element(pk_userregistrationround)
         serializer = UserScoreSheetElementReadSerializer(scoresheet, many=True)
         
         if not serializer.data:
-            #scoresheet = self.get_scoresheets_userskillpermission(pk_userregistrationround)
             scoresheet = self.get_scoresheets_user_skill_permission(pk_userregistrationround)
             serializer = UserSkillPermissionReadSerializer(scoresheet, many=True)
             
@@ -372,9 +385,9 @@ class TabsWriteViewSet(APIView):
 #done
 class TabsReadViewSet(APIView):
 
-    def get_user_registration_rounds(self, pk_championship, pk_division, pk_user, is_active):
+    def get_user_registration_rounds(self, pk_championship, pk_group, pk_user, is_active):
         try:
-            return UserRegistrationRound.objects.filter(registration__championshipscoresheet__championship__id=pk_championship, registration__division__id=pk_division, user__id=pk_user, is_active=is_active)
+            return UserRegistrationRound.objects.filter(registration__championshipscoresheet__championship__id=pk_championship, registration__group__id=pk_group, user__id=pk_user, is_active=is_active)
         except UserRegistrationRound.DoesNotExist:
             logger.error("Divsion not found")
 
@@ -384,9 +397,8 @@ class TabsReadViewSet(APIView):
         except UserScoreSheetElement.DoesNotExist:
             logger.error("User not found")
     
-    def get(self, request, pk_championship, pk_division, format=None):
-        #userregistrationrounds = self.get_user_registration_rounds(pk_championship, pk_division, request.user.id, True)
-        userregistrationrounds = self.get_user_registration_rounds(pk_championship, pk_division, 1, True)
+    def get(self, request, pk_championship, pk_group, format=None):
+        userregistrationrounds = self.get_user_registration_rounds(pk_championship, pk_group, request.user.id, True)
         
         serializer1 = UserRegistrationRoundReadSerializer(userregistrationrounds, many=True)
         
@@ -407,29 +419,46 @@ class TabsReadViewSet(APIView):
 #done
 class DashboardViewSet(APIView):
 
-    def get_user_registration_rounds(self, pk_championship):
+    def get_user_registration_rounds(self, pk_registration, is_active):
         try:
-            return UserRegistrationRound.objects.filter(registration__championshipscoresheet__championship__id=pk_championship)
+            return UserRegistrationRound.objects.filter(registration__id=pk_registration, is_active=is_active)
         except UserRegistrationRound.DoesNotExist:
+            logger.error("UserRegistrationRound not found")
+            raise Http404
+    
+    def get_registrations(self, pk_championship):
+        try:
+            return Registration.objects.filter(championshipscoresheet__championship__id=pk_championship)
+        except Registration.DoesNotExist:
             logger.error("Championship not found")
             raise Http404
     
 
     def get(self, request, pk_championship, format=None):
-        userregistrationrounds = self.get_user_registration_rounds(pk_championship)
         registration_list1 = []
         registration_list2 = set()
         registration_list3 = dict()
 
-        for userregistrationround in userregistrationrounds:
-            registration_list1.append(userregistrationround.registration.division)
-            registration_list2.add(userregistrationround.registration.division)
-            
-            participantes = registration_list1.count(userregistrationround.registration.division)
-            pendientes = registration_list3.get(userregistrationround.registration.division.name, [0,0,0])[2] + (1 if userregistrationround.status.name=='on time' else 0)
-            registration_list3[userregistrationround.registration.division.name] = [userregistrationround.registration.division, participantes, pendientes]
+        registrations = self.get_registrations(pk_championship)
+        for registration in registrations:
+            pendientes =  registration_list3.get(registration.group.name, [0,0,0])[2]
+
+            pk_registration = registration.id
+            userregistrationrounds = self.get_user_registration_rounds(pk_registration, True)
+            for userregistrationround in userregistrationrounds:
+                status_name = userregistrationround.status.name
+                if not status_name == 'checked':
+                    pendientes = pendientes + 1
+                    break
+
+            registration_list1.append(registration.group)
+            registration_list2.add(registration.group)
+
+            participantes = registration_list1.count(registration.group)
+
+            registration_list3[registration.group.name] = [registration.group, participantes, pendientes]
         
-        serializer = DivisionWriteSerializer(registration_list2, many=True)
+        serializer = GroupWriteSerializer(registration_list2, many=True)
 
         for data in serializer.data:
             name = data['name']
