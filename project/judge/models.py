@@ -103,14 +103,14 @@ class LocationType(BaseModel):
 class Location(BaseModel):
     name = models.CharField(max_length=150)
     
-    locationtype = models.ForeignKey(LocationType, related_name='locations', on_delete=models.CASCADE)
+    location_type = models.ForeignKey(LocationType, related_name='locations', on_delete=models.CASCADE)
     location = models.ForeignKey('self', related_name='locations', on_delete=models.CASCADE, default=None, blank=True, null=True)
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ]'.format(self.name, self.locationtype, self.location)
+        return '[ {} ] - [ {} ] - [ {} ]'.format(self.name, self.location_type, self.location)
     
     class Meta:
-        unique_together = (('name', 'locationtype'),)
+        unique_together = (('name', 'location_type'),)
 
 #done
 class Team(BaseModel):
@@ -128,19 +128,19 @@ class Team(BaseModel):
 class ScoreSheet(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
-    scoresheettype = models.ForeignKey(ScoreSheetType, related_name='score_sheets', on_delete=models.CASCADE)
+    scoresheet_type = models.ForeignKey(ScoreSheetType, related_name='score_sheets', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ]'.format(self.name, self.scoresheettype)
+        return '[ {} ] - [ {} ]'.format(self.name, self.scoresheet_type)
 
 #done
 class ScoreCategory(BaseModel):
     name = models.CharField(max_length=150, unique=True)
 
-    parentscorecategory = models.ForeignKey(ParentScoreCategory, related_name ='score_categories', on_delete=models.CASCADE)
+    parent_scorecategory = models.ForeignKey(ParentScoreCategory, related_name ='score_categories', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ]'.format(self.name, self.parentscorecategory)
+        return '[ {} ] - [ {} ]'.format(self.name, self.parent_scorecategory)
 
 #done
 class Status(BaseModel):
@@ -182,14 +182,14 @@ class Registration(BaseModel):
     order = models.IntegerField()
     
     team = models.ForeignKey(Team, related_name='registrations', on_delete=models.CASCADE)
-    championshipscoresheet = models.ForeignKey(ChampionshipScoreSheet, related_name='registrations', on_delete=models.CASCADE)
-    divisiongroup = models.ForeignKey(DivisionGroup, related_name='registrations', on_delete=models.CASCADE)
+    championship_scoresheet = models.ForeignKey(ChampionshipScoreSheet, related_name='registrations', on_delete=models.CASCADE)
+    division_group = models.ForeignKey(DivisionGroup, related_name='registrations', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]- [ {} ]'.format(str(self.date), self.total_men, self.total_women, self.coach, self.team, self.championshipscoresheet, self.divisiongroup, self.order)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]- [ {} ]'.format(str(self.date), self.total_men, self.total_women, self.coach, self.team, self.championship_scoresheet, self.division_group, self.order)
     
     class Meta:
-        unique_together = (('team', 'championshipscoresheet', 'divisiongroup'),)
+        unique_together = (('team', 'championship_scoresheet', 'division_group'),)
 
 #done
 class ScoreSheetElement(BaseModel):
@@ -197,14 +197,14 @@ class ScoreSheetElement(BaseModel):
     max_score = models.DecimalField(max_digits=10, decimal_places=3)
 
     scoremetric = models.ForeignKey(ScoreMetric, related_name='score_sheet_elements', on_delete=models.CASCADE)
-    scorecategory = models.ForeignKey(ScoreCategory, related_name='score_sheet_elements', on_delete=models.CASCADE)
+    score_category = models.ForeignKey(ScoreCategory, related_name='score_sheet_elements', on_delete=models.CASCADE)
     scoresheet = models.ForeignKey(ScoreSheet, related_name='score_sheet_elements', on_delete=models.CASCADE)
     
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.min_score, self.max_score, self.scoremetric, self.scorecategory, self.scoresheet)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.min_score, self.max_score, self.scoremetric, self.score_category, self.scoresheet)
     
     class Meta:
-        unique_together = (('scoremetric', 'scorecategory', 'scoresheet'),)
+        unique_together = (('scoremetric', 'score_category', 'scoresheet'),)
 
 #done
 class RegistrationRound(BaseModel):
@@ -223,25 +223,25 @@ class RegistrationRound(BaseModel):
 class UserScoreSheetElement(BaseModel):
     value = models.CharField(max_length=750)
 
-    registrationround = models.ForeignKey(RegistrationRound, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
-    scoresheetelement = models.ForeignKey(ScoreSheetElement, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
+    registration_round = models.ForeignKey(RegistrationRound, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
+    scoresheet_element = models.ForeignKey(ScoreSheetElement, related_name='user_score_sheet_elements', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', related_name='user_score_sheet_elements', on_delete=models.CASCADE)
     
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.value, self.registrationround, self.user, self.scoresheetelement)
+        return '[ {} ] - [ {} ] - [ {} ] - [ {} ]'.format(self.value, self.registration_round, self.user, self.scoresheet_element)
     
     class Meta:
-        unique_together = (('registrationround', 'scoresheetelement', 'user'),)
+        unique_together = (('registration_round', 'scoresheet_element', 'user'),)
 
 #done
 class UserSkillPermission(BaseModel):
 
-    registrationround = models.ForeignKey(RegistrationRound, related_name='user_skill_permissions', on_delete=models.CASCADE)
+    registration_round = models.ForeignKey(RegistrationRound, related_name='user_skill_permissions', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', related_name='user_skill_permissions', on_delete=models.CASCADE)
-    scoresheetelement = models.ForeignKey(ScoreSheetElement, related_name='user_skill_permissions', on_delete=models.CASCADE)
+    scoresheet_element = models.ForeignKey(ScoreSheetElement, related_name='user_skill_permissions', on_delete=models.CASCADE)
 
     def __str__(self):
-        return '[ {} ] - [ {} ] - [ {} ]'.format(self.registrationround, self.user, self.scoresheetelement)
+        return '[ {} ] - [ {} ] - [ {} ]'.format(self.registration_round, self.user, self.scoresheet_element)
     
     class Meta:
-        unique_together = (('registrationround', 'user', 'scoresheetelement'),)
+        unique_together = (('registration_round', 'user', 'scoresheet_element'),)
